@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "next build --profile",
+    "start": "next start -p 4004"
   },
   "dependencies": {
     "axios": "^0.21.1",
