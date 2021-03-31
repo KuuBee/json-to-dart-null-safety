@@ -1,4 +1,4 @@
-# JSON to Dart null sefaty
+# JSON to Dart null safety
 
 通过一个 JSON 字符串来生成可以序列化该 JSON 的空安全 `Dart`代码。
 
