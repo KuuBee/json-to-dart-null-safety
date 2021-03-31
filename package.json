@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --profile",
-    "start": "next start -p 4004"
+    "start": "next start -p 4004",
+    "deploy": "./deploy.sh"
   },
   "dependencies": {
     "axios": "^0.21.1",

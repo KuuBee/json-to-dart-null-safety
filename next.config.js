@@ -1,4 +1,7 @@
 module.exports = {
   /* config options here */
-  env: {}
+  env: {
+    basePath: "/jsontodart"
+  },
+  basePath: "/jsontodart"
 };

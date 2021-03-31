@@ -1,10 +1,11 @@
-import axios from "axios";
-import { GetStaticProps, NextPage } from "next";
+import { NextPage } from "next";
 import Head from "next/head";
 import { ChangeEvent, useState } from "react";
 import styles from "../styles/Home.module.scss";
 import { GenerateDart } from "../utils/toDart";
 import SyntaxHighlighter from "react-syntax-highlighter";
+import { httpClient } from "../config/http";
+import parse from "json-to-ast";
 
 const Home: NextPage = () => {
   const [inputVal, setInputVal] = useState(
@@ -99,16 +100,15 @@ const Home: NextPage = () => {
     try {
       const res = JSON.stringify(JSON.parse(val), null, 2);
       setInputVal(res);
-      const { data } = await axios.get(
-        "http://localhost:3000/api/json-to-ast",
-        {
-          params: { json: res }
-        }
-      );
+      const {
+        data: { data }
+      } = await httpClient.post<{ data: parse.ValueNode }>("json-to-ast", {
+        json: res
+      });
+
       const a = new GenerateDart();
       const resCode = a.toDart(data);
       setOututVal(resCode);
-      console.log(data);
     } catch (error) {
       console.error("错误的JSON格式:\n", error);
     }
@@ -118,8 +118,8 @@ const Home: NextPage = () => {
       <Head>
         <title>JSON to Dart</title>
         <link rel="icon" href="/favicon.ico" />
-        <meta name='description' content="JSON to dart null safety" />
-        <meta name='keywords' content="JSON Dart null safety" />
+        <meta name="description" content="JSON to dart null safety" />
+        <meta name="keywords" content="JSON Dart null safety" />
       </Head>
       <main>
         <h1>

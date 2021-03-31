@@ -2,8 +2,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import parse from "json-to-ast";
 
 export default (req: NextApiRequest, res: NextApiResponse) => {
-  const data = parse(req.query.json as string, {
-    loc: false
-  });
-  res.status(200).json(data);
+  if (req.method === "POST") {
+    const data = parse(req.body.json as string, {
+      loc: false
+    });
+    res.status(200).json({ data });
+  } else {
+    res.status(405).json({
+      error: "error method"
+    });
+  }
 };
