@@ -118,6 +118,8 @@ const Home: NextPage = () => {
       <Head>
         <title>JSON to Dart</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta name='description' content="JSON to dart null safety" />
+        <meta name='keywords' content="JSON Dart null safety" />
       </Head>
       <main>
         <h1>
