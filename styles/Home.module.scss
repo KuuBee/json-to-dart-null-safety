@@ -1,7 +1,12 @@
 .container {
-  min-height: 100vh;
+  height: 100%;
   padding: 20px;
+  .title {
+    display: flex;
+    align-items: center;
+  }
   .content {
+    $min-height: 70vh;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -14,13 +19,34 @@
     .input {
       margin-right: 20px;
       width: 30vw;
-      height: 80vh;
+      height: $min-height;
+      min-height: $min-height;
     }
     .output {
       flex: 1;
+      position: relative;
       margin: 0;
-      border-radius: 5px;
-      min-height: 80vh;
+      min-height: $min-height;
+      .placeholder,
+      .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto;
+        text-align: center;
+        line-height: $min-height;
+        font-size: 50px;
+        color: #90caf9;
+        user-select: none;
+      }
+      pre {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        min-height: $min-height;
+      }
     }
   }
 }

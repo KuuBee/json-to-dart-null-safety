@@ -9,15 +9,17 @@
     "deploy": "./deploy.sh"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "axios": "^0.21.1",
-    "highlight.js": "^10.7.1",
+    "i18next": "^20.1.0",
     "json-to-ast": "^2.1.0",
     "next": "10.0.9",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-markdown": "^5.0.3",
-    "react-syntax-highlighter": "^15.4.3",
-    "remark-gfm": "^1.0.0"
+    "react-i18next": "^11.8.12",
+    "react-syntax-highlighter": "^15.4.3"
   },
   "devDependencies": {
     "@types/json-to-ast": "^2.1.1",
