@@ -51,6 +51,12 @@ const Home: NextPage = () => {
   const convert = async () => {
     setLoading(true);
     format();
+    if (inputVal.match(/^\[/)) {
+      setErrorMsg("暂不支持该数据结构");
+      setError(true);
+      setLoading(false);
+      return;
+    }
     const res = await toAst(inputVal);
     const resCode = new GenerateDart({ className: rootClassName }).toDart(res);
     setOututVal(resCode);
@@ -64,6 +70,7 @@ const Home: NextPage = () => {
     } catch (error) {
       setErrorMsg("错误的JSON格式!");
       setError(true);
+      setLoading(false);
       throw error;
     }
   };
