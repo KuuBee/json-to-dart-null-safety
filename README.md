@@ -25,7 +25,7 @@ npm i
 npm run dev
 ```
 
-在你的浏览器打开 [http://localhost:3000](http://localhost:3000) 来进行预览
+在你的浏览器打开 [http://localhost:3000/jsontodart](http://localhost:3000/jsontodart) 来进行预览
 
 ## 注意事项
 
@@ -43,3 +43,4 @@ npm run dev
 ```
 
 - 如果在使用过程中遇见任何问题，请及时提 issue 好让我及时修复
+- 转换为 Dart
