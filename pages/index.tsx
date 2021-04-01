@@ -134,88 +134,83 @@ const Home: NextPage = () => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      <body>
-        <main className={styles.container}>
-          <h2 className={styles.title}>
-            <Button
-              variant="contained"
-              color="primary"
-              style={{ marginRight: "10px" }}
-              onClick={format}
+      <main className={styles.container}>
+        <h2 className={styles.title}>
+          <Button
+            variant="contained"
+            color="primary"
+            style={{ marginRight: "10px" }}
+            onClick={format}
+          >
+            格式化JSON
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            style={{ marginRight: "10px" }}
+            onClick={convert}
+          >
+            转换为Dart
+          </Button>
+          <TextField
+            label="设置根类名"
+            defaultValue={rootClassName}
+            onChange={rootClassNameChange}
+          />
+          <div style={{ flex: 1 }}></div>
+          <Button variant="contained" color="secondary" onClick={copy}>
+            复制
+          </Button>
+        </h2>
+        <div className={styles.content}>
+          <TextField
+            multiline
+            fullWidth
+            className={styles.input}
+            variant="outlined"
+            label="待转换的JSON"
+            placeholder="输入您的JSON"
+            value={inputVal}
+            onChange={inputChange}
+          ></TextField>
+          <Paper className={styles.output} elevation={3}>
+            <span
+              style={{ display: outputVal || loading ? "none" : "block" }}
+              className={styles.placeholder}
             >
-              格式化JSON
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              style={{ marginRight: "10px" }}
-              onClick={convert}
+              请在左侧输入JSON后点击转换
+            </span>
+            <span
+              style={{ display: loading ? "block" : "none" }}
+              className={styles.loading}
             >
-              转换为Dart
-            </Button>
-            <TextField
-              label="设置根类名"
-              defaultValue={rootClassName}
-              onChange={rootClassNameChange}
-            />
-            <div style={{ flex: 1 }}></div>
-            <Button variant="contained" color="secondary" onClick={copy}>
-              复制
-            </Button>
-          </h2>
-          <div className={styles.content}>
-            <TextField
-              multiline
-              fullWidth
-              className={styles.input}
-              variant="outlined"
-              label="待转换的JSON"
-              placeholder="输入您的JSON"
-              value={inputVal}
-              onChange={inputChange}
-            ></TextField>
-            <Paper className={styles.output} elevation={3}>
-              <span
-                style={{ display: outputVal || loading ? "none" : "block" }}
-                className={styles.placeholder}
-              >
-                请在左侧输入JSON后点击转换
-              </span>
-              <span
-                style={{ display: loading ? "block" : "none" }}
-                className={styles.loading}
-              >
-                <CircularProgress></CircularProgress>
-              </span>
-              <SyntaxHighlighter language="dart">{outputVal}</SyntaxHighlighter>
-            </Paper>
-          </div>
-        </main>
-        <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={success}
-          autoHideDuration={6000}
-          onClose={handleClose}
-        >
-          <MuiAlert severity="success" elevation={6} variant="filled">
-            操作成功！
-          </MuiAlert>
-        </Snackbar>
-        <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={error}
-          autoHideDuration={6000}
-          onClose={handleClose}
-        >
-          <MuiAlert severity="error" elevation={6} variant="filled">
-            {errorMsg}
-          </MuiAlert>
-        </Snackbar>
-      </body>
+              <CircularProgress></CircularProgress>
+            </span>
+            <SyntaxHighlighter language="dart">{outputVal}</SyntaxHighlighter>
+          </Paper>
+        </div>
+      </main>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={success}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <MuiAlert severity="success" elevation={6} variant="filled">
+          操作成功！
+        </MuiAlert>
+      </Snackbar>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={error}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <MuiAlert severity="error" elevation={6} variant="filled">
+          {errorMsg}
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
-};
-Home.getInitialProps = async () => {
-  return { a: 1 };
 };
 export default Home;
