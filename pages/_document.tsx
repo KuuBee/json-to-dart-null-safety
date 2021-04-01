@@ -1,12 +1,11 @@
 import React from "react";
-import NextDocument, {
+import Document, {
   Html,
   Head,
   Main,
   NextScript,
   DocumentContext
 } from "next/document";
-import { ServerStyleSheet } from "styled-components";
 import createEmotionServer from "@emotion/server/create-instance";
 import theme from "../utils/theme";
 import { ServerStyleSheets } from "@material-ui/core/styles";
@@ -14,30 +13,7 @@ import { cache } from "./_app";
 
 const { extractCritical } = createEmotionServer(cache);
 
-export default class Document extends NextDocument {
-  // static async getInitialProps(ctx: DocumentContext) {
-  //   const sheet = new ServerStyleSheet();
-  //   const originalRenderPage = ctx.renderPage;
-  //   try {
-  //     ctx.renderPage = () =>
-  //       originalRenderPage({
-  //         enhanceApp: (App) => (props) =>
-  //           sheet.collectStyles(<App {...props} />)
-  //       });
-  //     const initialProps = await NextDocument.getInitialProps(ctx);
-  //     return {
-  //       ...initialProps,
-  //       styles: (
-  //         <>
-  //           {initialProps.styles}
-  //           {sheet.getStyleElement()}
-  //         </>
-  //       )
-  //     };
-  //   } finally {
-  //     sheet.seal();
-  //   }
-  // }
+export default class MyDocument extends Document {
   render() {
     return (
       <Html lang="zh">
@@ -52,13 +28,27 @@ export default class Document extends NextDocument {
         <body>
           <Main />
           <NextScript />
+          <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-DX0RNN128J"
+          ></script>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer = window.dataLayer || [];
+              function gtag() {
+                dataLayer.push(arguments);
+              }
+              gtag("js", new Date());
+              gtag("config", "G-DX0RNN128J");`
+            }}
+          ></script>
         </body>
       </Html>
     );
   }
 }
 
-Document.getInitialProps = async (ctx: DocumentContext) => {
+MyDocument.getInitialProps = async (ctx: DocumentContext) => {
   // Render app and page and get the context of the page with collected side effects.
   const sheets = new ServerStyleSheets();
   const originalRenderPage = ctx.renderPage;
@@ -68,7 +58,7 @@ Document.getInitialProps = async (ctx: DocumentContext) => {
       enhanceApp: (App) => (props) => sheets.collect(<App {...props} />)
     });
 
-  const initialProps = await NextDocument.getInitialProps(ctx);
+  const initialProps = await Document.getInitialProps(ctx);
   const styles = extractCritical(initialProps.html);
 
   return {

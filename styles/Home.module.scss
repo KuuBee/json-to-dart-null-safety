@@ -26,6 +26,7 @@
       flex: 1;
       position: relative;
       margin: 0;
+      overflow: hidden;
       min-height: $min-height;
       .placeholder,
       .loading {

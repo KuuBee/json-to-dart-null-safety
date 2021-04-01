@@ -6,7 +6,7 @@ import { ThemeProvider } from "styled-components";
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 const theme = {};
 export const cache = createCache({ key: "css", prepend: true });
