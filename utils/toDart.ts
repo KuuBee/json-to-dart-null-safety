@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-03-30 17:16:33
+ * @LastEditTime: 2021-04-02 11:50:37
  */
 
 import parse, {
@@ -214,6 +214,7 @@ export class GenerateDart extends GenerateBase {
             break;
           case "Array":
             // FIXME 这样写不太靠谱 最好还是迭代一下
+            // FIXME 空数组异常
             const { type } = (value as ArrayNode).children[0];
             // 基础类型数组
             if (type === "Literal") {
@@ -308,37 +309,54 @@ interface IterationValType<T = any> {
   val: T[];
 }
 
+// 用于处理数组对象
 export class GenerateArrayDart extends GenerateBase {
   constructor(protected opt: GenerateArrayDartOptions) {
     super(opt);
   }
 
   private get val(): IterationValType[] {
-    return this.opt.val[0].children.map((item, index) => {
+    const keyArr: parse.PropertyNode[] = [];
+    // 获取全部可能存在的key
+    this.opt.val?.forEach((item) => {
+      item.children?.forEach((subItem) => {
+        if (
+          // 防止重复添加
+          !keyArr.some((someItem) => someItem.key.value === subItem.key.value)
+        ) {
+          keyArr.push(subItem);
+        }
+      });
+    });
+    return keyArr.map((item) => {
       let type: ("Object" | "Array" | "Literal")[] = [];
       const val = this.opt.val.map(({ children }) => {
-        //
-        if (children === null || children === undefined) return null;
+        // 通过外部key查找内部
+        const findOne = children.find(
+          (findItem) => findItem.key.value === item.key.value
+        );
+        // 如果没找到 直接返回null
+        if (findOne === null || findOne === undefined) return null;
+
+        // if (!(children?.[index]?.value?.type ?? false)) return null;
         // 如果 type 为 Literal 必须检查 val 是否为 null
         // 如果为 null 则放弃这个 type
         // 但有一种情况就是全部都为 null 直接赋值 Literal
         // 为了避免出现这种情况 [null,[...]]
-        if (children[index].value.type === "Literal") {
-          if ((children[index].value as LiteralNode).value)
-            type.push(children[index].value.type);
-        } else type.push(children[index].value.type);
-        if (children[index].value.type === "Literal")
-          return (children[index].value as LiteralNode).value;
-        if (children[index].value.type === "Array")
-          return (children[index].value as ArrayNode).children;
-        if (children[index].value.type === "Object")
-          return children[index].value as ObjectNode;
+        if (findOne.value.type === "Literal") {
+          if ((findOne.value as LiteralNode).value)
+            type.push(findOne.value.type);
+        } else type.push(findOne.value.type);
+        if (findOne.value.type === "Literal")
+          return (findOne.value as LiteralNode).value;
+        if (findOne.value.type === "Array")
+          return (findOne.value as ArrayNode).children;
+        if (findOne.value.type === "Object") return findOne.value as ObjectNode;
       });
-      if (!type.every((item, index) => item === type[index])) throw "结构异常";
       return {
         key: item.key.value,
+        // 如果 type 没找到 那就代表值为 null 所以 type 写死为 Literal
         type: type[0] ?? "Literal",
-        //  item.value.type
         val: val
       };
     });

@@ -4,7 +4,6 @@ import { ChangeEvent, useState } from "react";
 import styles from "../styles/Home.module.scss";
 import { GenerateDart } from "../utils/toDart";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { httpClient } from "../config/http";
 import parse from "json-to-ast";
 import Button from "@material-ui/core/Button";
 import AppBar from "@material-ui/core/AppBar";
@@ -19,7 +18,92 @@ import IconButton from "@material-ui/core/IconButton";
 import GitHubIcon from "@material-ui/icons/GitHub";
 
 const Home: NextPage = () => {
-  const [inputVal, setInputVal] = useState("");
+  const [inputVal, setInputVal] = useState(`{
+  "status": "1",
+  "data": {
+      "code": "1",
+      "timestamp": "1587169611.67",
+      "version": "2.0-3.0.0104.1523",
+      "result": "true",
+      "message": "Successful.",
+      "dataItem": [
+          {
+              "report_time": "2020-04-18 08:05:00",
+              "live": {
+                  "weather_name": "阴",
+                  "list": [
+                      1,
+                      2,
+                      3,
+                      4
+                  ],
+                  "list2": [
+                      {
+                          "index": 1
+                      }
+                  ],
+                  "weather_code": "02",
+                  "temperature": "13"
+              },
+              "forecast_date": "2020-04-18",
+              "weekday": 5,
+              "forecastData": [
+                  {
+                      "wind_direction_code": "4",
+                      "wind_power_code": "1",
+                      "max_temp": "23",
+                      "weather_code": "01",
+                      "min_temp": "8",
+                      "weather_name": "多云",
+                      "wind_power_desc": "3-4",
+                      "daynight": 0,
+                      "wind_direction_desc": "南风"
+                  },
+                  {
+                      "wind_direction_code": "4",
+                      "wind_power_code": "1",
+                      "max_temp": "23",
+                      "weather_code": "01",
+                      "min_temp": "8",
+                      "weather_name": "多云",
+                      "wind_power_desc": "3-4",
+                      "daynight": 1,
+                      "wind_direction_desc": "南风"
+                  }
+              ]
+          },
+          {
+              "report_time": "2020-04-18 08:05:00",
+              "forecast_date": "2020-04-19",
+              "weekday": 6,
+              "forecastData": [
+                  {
+                      "wind_direction_code": "4",
+                      "wind_power_code": "2",
+                      "max_temp": "24",
+                      "weather_code": "02",
+                      "min_temp": "10",
+                      "weather_name": "阴",
+                      "wind_power_desc": "4-5",
+                      "daynight": 0,
+                      "wind_direction_desc": "南风"
+                  },
+                  {
+                      "wind_direction_code": "4",
+                      "wind_power_code": "2",
+                      "max_temp": "24",
+                      "weather_code": "02",
+                      "min_temp": "10",
+                      "weather_name": "阴",
+                      "wind_power_desc": "4-5",
+                      "daynight": 1,
+                      "wind_direction_desc": "南风"
+                  }
+              ]
+          }
+      ]
+  }
+}`);
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
@@ -31,16 +115,13 @@ const Home: NextPage = () => {
     setInputVal(val.target.value);
   };
   // 转换Ast
-  const toAst = async (val: string): Promise<parse.ValueNode> => {
+  const toAst = (val: string): parse.ValueNode => {
     try {
       const res = JSON.stringify(JSON.parse(val), null, 4);
       setInputVal(res);
-      const {
-        data: { data }
-      } = await httpClient.post<{ data: parse.ValueNode }>("json-to-ast", {
-        json: res
+      return parse(res, {
+        loc: false
       });
-      return data;
     } catch (error) {
       setErrorMsg("哦！转换失败了，请稍后尝试。");
       setError(true);
@@ -48,7 +129,7 @@ const Home: NextPage = () => {
     }
   };
   // 转换
-  const convert = async () => {
+  const convert = () => {
     setLoading(true);
     format();
     if (inputVal.match(/^\[/)) {
@@ -57,7 +138,7 @@ const Home: NextPage = () => {
       setLoading(false);
       return;
     }
-    const res = await toAst(inputVal);
+    const res = toAst(inputVal);
     const resCode = new GenerateDart({ className: rootClassName }).toDart(res);
     setOututVal(resCode);
     setLoading(false);

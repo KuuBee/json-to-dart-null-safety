@@ -15,19 +15,10 @@ const { extractCritical } = createEmotionServer(cache);
 
 export default class MyDocument extends Document {
   render() {
-    return (
-      <Html lang="zh">
-        <Head>
-          {/* PWA primary color */}
-          <meta name="theme-color" content={theme.palette.primary.main} />
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-          />
-        </Head>
-        <body>
-          <Main />
-          <NextScript />
+    function GoogleAnalyzeScript() {
+      if (process.env.NEXT_PUBLIC_ENV === "dev") return <></>;
+      return (
+        <>
           <script
             async
             src="https://www.googletagmanager.com/gtag/js?id=G-DX0RNN128J"
@@ -42,6 +33,28 @@ export default class MyDocument extends Document {
               gtag("config", "G-DX0RNN128J");`
             }}
           ></script>
+        </>
+      );
+    }
+    return (
+      <Html lang="zh">
+        <Head>
+          {/* PWA primary color */}
+          <meta name="theme-color" content={theme.palette.primary.main} />
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+          />
+          <link
+            rel="icon"
+            type="image/x-icon"
+            href="https://autocode.icu/assets/favicon/favicon.ico"
+          />
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+          <GoogleAnalyzeScript />
         </body>
       </Html>
     );
