@@ -35,7 +35,13 @@
     "@types/react": "^17.0.3",
     "@types/react-syntax-highlighter": "^13.5.0",
     "@types/styled-components": "^5.1.9",
+    "cz-conventional-changelog": "^3.3.0",
     "sass": "^1.32.8",
     "typescript": "^4.2.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
