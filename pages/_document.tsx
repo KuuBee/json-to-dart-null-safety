@@ -41,6 +41,9 @@ export default class MyDocument extends Document {
         <Head>
           {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
+          <meta name="description" content="JSON to dart null safety" />
+          <meta name="keywords" content="JSON,Dart,nullSafety" />
+          <meta name="renderer" content="webkit"></meta>
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
