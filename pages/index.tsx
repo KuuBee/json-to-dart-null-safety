@@ -95,17 +95,6 @@ const Home: NextPage = () => {
     <div>
       <Head>
         <title>JSON to Dart</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="description" content="JSON to dart null safety" />
-        <meta name="keywords" content="JSON,Dart,null,safety" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/icon?family=Material+Icons"
-        />
       </Head>
       <AppBar position="static">
         <h1 className={styles.seo}>JSON to Dart null safety</h1>
