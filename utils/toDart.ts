@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-04-03 13:59:56
+ * @LastEditTime: 2021-04-07 17:18:43
  */
 
 import parse, {
@@ -33,6 +33,7 @@ class GenerateBase {
   protected readonly _property = "--property--";
   protected readonly _constructor = "--constructor--";
   protected readonly _fromJson = "--fromJson--";
+  protected readonly _toJson = "--toJson--";
   protected readonly _baseRegExp = `\\n\\s*`;
   protected readonly _jsTypeToDartType: {
     [key: string]: "String" | "bool";
@@ -40,6 +41,7 @@ class GenerateBase {
     string: "String",
     boolean: "bool"
   };
+  protected readonly _baseDartType = ["String", "bool", "int", "double"];
 
   protected get _propertyRegExp() {
     return new RegExp(`${this._baseRegExp}${this._property}`);
@@ -50,6 +52,9 @@ class GenerateBase {
   protected get _fromJsonRegExp() {
     return new RegExp(`${this._baseRegExp}${this._fromJson}`);
   }
+  protected get _toJsonRegExp() {
+    return new RegExp(`${this._baseRegExp}${this._toJson}`);
+  }
   protected get _className(): string {
     if (this.opt?.className) {
       const className = this.opt.className;
@@ -58,12 +63,15 @@ class GenerateBase {
     return this.opt?.className ?? "AutoGenerate";
   }
 
-  // 获取最终结果
+  /**
+   * @description: 删除注释，获取最终结果
+   */
   getRes() {
     this._res = this._res
       .replace(this._propertyRegExp, "")
       .replace(this._constructorRegExp, "")
-      .replace(this._fromJsonRegExp, "");
+      .replace(this._fromJsonRegExp, "")
+      .replace(this._toJsonRegExp, "");
     return this._res;
   }
 
@@ -88,21 +96,49 @@ class GenerateBase {
     if (val === null) return "Null";
     return type;
   }
-  // _分割转为驼峰
+  /**
+   * @description: _ 转 驼峰
+   * @param key
+   * @param type defalut大驼峰 small小驼峰
+   */
   protected _toCamelCase(
-    variableName: string,
+    key: string,
     // 大驼峰/小驼峰
     type: "defalut" | "small" = "small"
   ): string {
-    const small = variableName.replaceAll(
-      /\_([a-zA-Z])/g,
-      (_match, p1: string) => p1.toLocaleUpperCase()
+    const small = key.replaceAll(/\_([a-zA-Z])/g, (_match, p1: string) =>
+      p1.toLocaleUpperCase()
     );
     if (type === "defalut")
       return small.replace(/(^[a-z])/, (_match, p1: string) =>
         p1.toLocaleUpperCase()
       );
     return small;
+  }
+  /**
+   * @description: 驼峰转下划线
+   * @param {string} key
+   */
+  protected toUnderline(key: string): string {
+    key = key.replace(/^\S/, (match) => {
+      return match.toLocaleLowerCase();
+    });
+    const res = key.replaceAll(
+      /[A-Z]/g,
+      (match) => `_${match.toLocaleLowerCase()}`
+    );
+    return res;
+  }
+  /**
+   * @description: 判断当前类型是否为基础类型
+   * @param {string} type
+   */
+  protected _isBaseType(type: string): boolean {
+    return this._baseDartType.some((item) => {
+      const res = new RegExp(`^${item}`).test(type);
+      if (res && item === "List") return type.match(/^List<\S+>\??/);
+      return res;
+    });
   }
 }
 
@@ -116,7 +152,6 @@ export class GenerateDart extends GenerateBase {
    * @param val 值
    * @param variableName 参数名称 仅在 valType 的值为 object 时需要填写
    * @param valType 当前值的 ast 类型
-   * @return {*}
    */
   //
   private _getDartType(
@@ -156,7 +191,11 @@ export class GenerateDart extends GenerateBase {
     }
     return this._getDartBaseType(val as any);
   }
-  // 创建一个class
+  /**
+   * @description: 创建一个空的class模板
+   * @param {*}
+   * @return {*}
+   */
   generateClass(): GenerateDart {
     this._res = `\n  class ${this._className} {
       ${this._property}
@@ -167,6 +206,11 @@ export class GenerateDart extends GenerateBase {
 
       ${this._className}.fromJson(Map<String, dynamic> json) {
         ${this._fromJson}
+      }
+      Map<String, dynamic> toJson() {
+        final _data = <String, dynamic>{};
+        ${this._toJson}
+        return _data;
       }
     }`;
     return this;
@@ -186,6 +230,7 @@ export class GenerateDart extends GenerateBase {
     this._insertProperty(type, camelCaseName);
     this._insertConstructorProperty(camelCaseName);
     this._insertFromJsonProperty(camelCaseName, variableName, valType, type);
+    this._insertToJsonProperty(camelCaseName, type);
     return this;
   }
   // 一键转换
@@ -302,6 +347,47 @@ export class GenerateDart extends GenerateBase {
     );
     return baseCode;
   }
+  private _insertToJsonProperty(key: string, type: string) {
+    const jsonKey = this.toUnderline(key);
+
+    let baseCode = `_data['${jsonKey}'] = ${key};`;
+    const typeMatch = type.match(/^List<(\S+)>(\??)/);
+    if (this._baseDartType.includes(type))
+      // 基本类型
+      baseCode = `_data['${jsonKey}'] = ${key};`;
+    else if (typeMatch) {
+      // 数组类型
+      if (this._baseDartType.includes(typeMatch[1])) {
+        // 基础数组类型
+        baseCode = `_data['${jsonKey}'] = ${key};`;
+      } else {
+        // 对象数组
+        if (typeMatch[2]) {
+          // 当前列表可能为null 即 List<Obj>?
+          baseCode = `if(${key} != null){
+            _data['${jsonKey}'] = ${key}.map((e)=>e${
+            /\?$/.test(typeMatch[1]) ? "?" : ""
+          }.toJson()).toList();
+          }else _data['${jsonKey}'] = null;
+          `;
+        } else {
+          //  可以直接迭代
+          baseCode = `_data['${jsonKey}'] = ${key}.map((e)=>e${
+            /\?$/.test(typeMatch[1]) ? "?" : ""
+          }.toJson()).toList();`;
+        }
+      }
+    } else {
+      // 对象类型
+      baseCode = `_data['${jsonKey}'] = ${key}.toJson();`;
+    }
+    this._res = this._res.replace(
+      this._toJsonRegExp,
+      `
+        ${baseCode}
+    ${this._toJson}`
+    );
+  }
 }
 interface IterationValType<T = any> {
   key: string;
@@ -374,6 +460,12 @@ export class GenerateArrayDart extends GenerateBase {
       ${this._className}.fromJson(Map<String, dynamic> json) {
         ${this._fromJson}
       }
+
+      Map<String, dynamic> toJson() {
+        final _data = <String, dynamic>{};
+        ${this._toJson}
+        return _data;
+      }
     }`;
     return this;
   }
@@ -390,6 +482,7 @@ export class GenerateArrayDart extends GenerateBase {
     this._insertProperty(type, camelCaseName);
     this._insertConstructorProperty(camelCaseName);
     this._insertFromJsonProperty(camelCaseName, key, valType, type);
+    this._instertToJson(camelCaseName, type);
     return this;
   }
 
@@ -544,7 +637,7 @@ export class GenerateArrayDart extends GenerateBase {
         return ${type?.match(/(?<=List<)[a-zA-Z0-9]*(?=\??>\??)/)}.fromJson(e);
       }).toList()`;
       const baseFunc = `${type?.replace(
-        /(^List\<.*\>)\?/,
+        /(^List\<.*>)\?/,
         "$1"
       )}.from(json['${variableName}'])`;
       const fromFunc = valType === "arrayBase" ? baseFunc : objFunc;
@@ -571,5 +664,47 @@ export class GenerateArrayDart extends GenerateBase {
       ${this._fromJson}`
     );
     return baseCode;
+  }
+  private _instertToJson(key: string, type: string) {
+    const jsonKey = this.toUnderline(key);
+    let baseCode = `_data['${jsonKey}'] = ${key};`;
+    const typeMatch = type.match(/^List<(\S+)>(\??)/);
+    if (this._baseDartType.includes(type))
+      // 基本类型
+      baseCode = `_data['${jsonKey}'] = ${key};`;
+    else if (typeMatch) {
+      // 数组类型
+      if (this._baseDartType.includes(typeMatch[1])) {
+        // 基础数组类型
+        baseCode = `_data['${jsonKey}'] = ${key};`;
+      } else {
+        // 对象数组
+        if (typeMatch[2]) {
+          // 当前列表可能为null 即 List<Obj>?
+          baseCode = `if(${key} != null){
+            _data['${jsonKey}'] = ${key}.map((e)=>e${
+            /\?$/.test(typeMatch[1]) ? "?" : ""
+          }.toJson()).toList();
+          }else _data['${jsonKey}'] = null;
+          `;
+        } else {
+          //  可以直接迭代
+          baseCode = `_data['${jsonKey}'] = ${key}.map((e)=>e${
+            /\?$/.test(typeMatch[1]) ? "?" : ""
+          }.toJson()).toList();`;
+        }
+      }
+    } else {
+      // 对象类型
+      baseCode = `_data['${jsonKey}'] = ${key}${
+        /\?$/.test(type) ? "?" : ""
+      }.toJson();`;
+    }
+    this._res = this._res.replace(
+      this._toJsonRegExp,
+      `
+        ${baseCode}
+    ${this._toJson}`
+    );
   }
 }
