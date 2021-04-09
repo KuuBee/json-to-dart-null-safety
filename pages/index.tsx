@@ -138,9 +138,6 @@ const Home: NextPage = () => {
   const toGithub = () => {
     window.open("https://github.com/KuuBee/json-to-dart-null-safety");
   };
-  function componentDidMount() {
-    console.log(2222);
-  }
   return (
     <div>
       <Head>
