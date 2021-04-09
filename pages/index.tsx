@@ -1,9 +1,10 @@
 import { NextPage } from "next";
 import Head from "next/head";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.scss";
 import { GenerateDart } from "../utils/toDart";
 import SyntaxHighlighter from "react-syntax-highlighter";
+import { AppLanguage, languageSource } from "../language";
 import parse from "json-to-ast";
 import Button from "@material-ui/core/Button";
 import AppBar from "@material-ui/core/AppBar";
@@ -16,15 +17,61 @@ import MuiAlert from "@material-ui/lab/Alert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import IconButton from "@material-ui/core/IconButton";
 import GitHubIcon from "@material-ui/icons/GitHub";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import TranslateIcon from "@material-ui/icons/Translate";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { enUs } from "../language/en-us";
 
 const Home: NextPage = () => {
   const [inputVal, setInputVal] = useState("");
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("哦！好像出现了什么问题。");
   const [loading, setLoading] = useState(false);
   const [rootClassName, setRootClassName] = useState("AutoGenerate");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [language, setLanguage] = useState<AppLanguage.Type>(enUs);
+  const languageContent = language.content;
+  const [errorMsg, setErrorMsg] = useState(languageContent.errorMsg);
+
+  useEffect(() => {
+    const selectLanguaeStr = localStorage.language;
+    if (!localStorage.language) {
+      // 读取缓存查询是否有历史选中语言
+      // 如果没有就读取浏览器语言
+      // 和已存在的语言对比 如果找到了 就设置查询值
+      // 如果没找到就保持英语
+      const res = languageSource.filter(
+        (item) => item.enName === navigator.language.toLocaleLowerCase()
+      );
+      if (res.length) {
+        localStorage.language = JSON.stringify(res[0]);
+        setLanguage(res[0]);
+      }
+      return;
+    }
+    const selectLanguaeObj = JSON.parse(selectLanguaeStr) as AppLanguage.Type;
+    if (selectLanguaeObj.name !== language.name) setLanguage(selectLanguaeObj);
+  }, [language]);
+
+  const TranslationMenuItem = languageSource.map((item) => (
+    <MenuItem key={item.name} onClick={() => handleMenuClose(item)}>
+      {item.name}
+    </MenuItem>
+  ));
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = (select?: AppLanguage.Type) => {
+    if (select) {
+      setLanguage(select);
+      localStorage.language = JSON.stringify(select);
+    }
+    setAnchorEl(null);
+  };
 
   const inputChange = async (val: ChangeEvent<HTMLTextAreaElement>) => {
     setInputVal(val.target.value);
@@ -38,7 +85,7 @@ const Home: NextPage = () => {
         loc: false
       });
     } catch (error) {
-      setErrorMsg("哦！转换失败了，请稍后尝试。");
+      setErrorMsg(languageContent.convertError);
       setError(true);
       throw error;
     }
@@ -48,7 +95,7 @@ const Home: NextPage = () => {
     setLoading(true);
     format();
     if (inputVal.match(/^\[/)) {
-      setErrorMsg("暂不支持该数据结构");
+      setErrorMsg(languageContent.errorStructureMsg);
       setError(true);
       setLoading(false);
       return;
@@ -64,7 +111,7 @@ const Home: NextPage = () => {
     try {
       setInputVal(JSON.stringify(JSON.parse(inputVal), null, 4));
     } catch (error) {
-      setErrorMsg("错误的JSON格式!");
+      setErrorMsg(languageContent.wrongJsonFormat);
       setError(true);
       setLoading(false);
       throw error;
@@ -79,7 +126,7 @@ const Home: NextPage = () => {
       await navigator.clipboard.writeText(outputVal);
       setSuccess(true);
     } catch (error) {
-      setErrorMsg("复制失败！");
+      setErrorMsg(languageContent.copyFailed);
       setError(true);
     }
   };
@@ -91,6 +138,9 @@ const Home: NextPage = () => {
   const toGithub = () => {
     window.open("https://github.com/KuuBee/json-to-dart-null-safety");
   };
+  function componentDidMount() {
+    console.log(2222);
+  }
   return (
     <div>
       <Head>
@@ -106,10 +156,28 @@ const Home: NextPage = () => {
             style={{ color: "#ff5252", fontWeight: "bold" }}
             variant="h4"
           >
-            {/* #ff5252 #90caf9 */}
             null safety
           </Typography>
           <span style={{ flex: 1 }}></span>
+          <Button
+            disableElevation
+            variant="contained"
+            color="primary"
+            startIcon={<TranslateIcon />}
+            endIcon={<ExpandMoreIcon />}
+            style={{ marginRight: "10px" }}
+            onClick={handleMenuClick}
+          >
+            {language?.name}
+          </Button>
+          <Menu
+            keepMounted
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => handleMenuClose()}
+          >
+            {TranslationMenuItem}
+          </Menu>
           <IconButton
             edge="start"
             color="inherit"
@@ -128,7 +196,7 @@ const Home: NextPage = () => {
             style={{ marginRight: "10px" }}
             onClick={format}
           >
-            格式化JSON
+            {languageContent.formatJson}
           </Button>
           <Button
             variant="contained"
@@ -136,16 +204,16 @@ const Home: NextPage = () => {
             style={{ marginRight: "10px" }}
             onClick={convert}
           >
-            转换为Dart
+            {languageContent.convertToDart}
           </Button>
           <TextField
-            label="设置根类名"
+            label={languageContent.setRootClassName}
             defaultValue={rootClassName}
             onChange={rootClassNameChange}
           />
           <div style={{ flex: 1 }}></div>
           <Button variant="contained" color="secondary" onClick={copy}>
-            复制
+            {languageContent.copy}
           </Button>
         </h2>
         <div className={styles.content}>
@@ -154,8 +222,8 @@ const Home: NextPage = () => {
             fullWidth
             className={styles.input}
             variant="outlined"
-            label="待转换的JSON"
-            placeholder="输入您的JSON"
+            label={languageContent.jsonToBeConverted}
+            placeholder={languageContent.enterYourJson}
             value={inputVal}
             onChange={inputChange}
           ></TextField>
@@ -164,7 +232,7 @@ const Home: NextPage = () => {
               style={{ display: outputVal || loading ? "none" : "block" }}
               className={styles.placeholder}
             >
-              请在左侧输入JSON后点击转换
+              {languageContent.noContentMsg}
             </span>
             <span
               style={{ display: loading ? "block" : "none" }}
@@ -183,7 +251,7 @@ const Home: NextPage = () => {
         onClose={handleClose}
       >
         <MuiAlert severity="success" elevation={6} variant="filled">
-          操作成功！
+          {languageContent.success}
         </MuiAlert>
       </Snackbar>
       <Snackbar
