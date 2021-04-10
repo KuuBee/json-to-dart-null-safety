@@ -1,4 +1,4 @@
-import { NextPage } from "next";
+import { NextPage, NextPageContext } from "next";
 import Head from "next/head";
 import { ChangeEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.scss";
@@ -23,7 +23,11 @@ import TranslateIcon from "@material-ui/icons/Translate";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { enUs } from "../language/en-us";
 
-const Home: NextPage = () => {
+interface InitProp {
+  lang?: string;
+}
+
+const Home: NextPage<InitProp> = ({ lang }) => {
   const [inputVal, setInputVal] = useState("");
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState(false);
@@ -31,29 +35,14 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [rootClassName, setRootClassName] = useState("AutoGenerate");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [language, setLanguage] = useState<AppLanguage.Type>(enUs);
+  // 默认语言
+  const defaultLanguage = languageSource.filter((item) => item.enName === lang);
+  const [language, setLanguage] = useState<AppLanguage.Type>(
+    // 如果默认没有就选用 en-us
+    defaultLanguage?.[0] ?? enUs
+  );
   const languageContent = language.content;
   const [errorMsg, setErrorMsg] = useState(languageContent.errorMsg);
-
-  useEffect(() => {
-    const selectLanguaeStr = localStorage.language;
-    if (!localStorage.language) {
-      // 读取缓存查询是否有历史选中语言
-      // 如果没有就读取浏览器语言
-      // 和已存在的语言对比 如果找到了 就设置查询值
-      // 如果没找到就保持英语
-      const res = languageSource.filter(
-        (item) => item.enName === navigator.language.toLocaleLowerCase()
-      );
-      if (res.length) {
-        localStorage.language = JSON.stringify(res[0]);
-        setLanguage(res[0]);
-      }
-      return;
-    }
-    const selectLanguaeObj = JSON.parse(selectLanguaeStr) as AppLanguage.Type;
-    if (selectLanguaeObj.name !== language.name) setLanguage(selectLanguaeObj);
-  }, [language]);
 
   const TranslationMenuItem = languageSource.map((item) => (
     <MenuItem key={item.name} onClick={() => handleMenuClose(item)}>
@@ -68,7 +57,11 @@ const Home: NextPage = () => {
   const handleMenuClose = (select?: AppLanguage.Type) => {
     if (select) {
       setLanguage(select);
-      localStorage.language = JSON.stringify(select);
+      history.pushState(
+        null,
+        "json to dart null safety",
+        `?lang=${select.enName}`
+      );
     }
     setAnchorEl(null);
   };
@@ -263,5 +256,8 @@ const Home: NextPage = () => {
       </Snackbar>
     </div>
   );
+};
+Home.getInitialProps = async (ctx: NextPageContext) => {
+  return ctx.query;
 };
 export default Home;
