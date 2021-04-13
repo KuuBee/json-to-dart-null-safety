@@ -3,14 +3,13 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-04-07 17:18:43
+ * @LastEditTime: 2021-04-13 14:54:40
  */
 
 import parse, {
   ArrayNode,
   LiteralNode,
   ObjectNode,
-  PropertyNode,
   ValueNode
 } from "json-to-ast";
 
@@ -25,7 +24,7 @@ interface GenerateArrayDartOptions extends GenerateDartOptions {
   val: ObjectNode[];
 }
 
-class GenerateBase {
+export class GenerateBase {
   constructor(protected opt?: GenerateDartOptions) {}
   // 用于缓存结果
   protected _res: string = "";
@@ -41,7 +40,14 @@ class GenerateBase {
     string: "String",
     boolean: "bool"
   };
-  protected readonly _baseDartType = ["String", "bool", "int", "double"];
+  protected readonly _baseDartType = [
+    "String",
+    "bool",
+    "int",
+    "double",
+    "Null",
+    "dynamic"
+  ];
 
   protected get _propertyRegExp() {
     return new RegExp(`${this._baseRegExp}${this._property}`);
@@ -78,10 +84,9 @@ class GenerateBase {
   /**
    * @description: 获取 dart 基础类型
    * @param {string} val
-   * @return {*}
    */
   protected _getDartBaseType(val: string | number | boolean | null) {
-    // 默认为 dynamic 类型 用于null值
+    // 默认为 dynamic 类型 兜底
     let type: DartBaseType = "dynamic";
     const _valType = typeof val;
     // 如果有基础类型就直接返回
@@ -98,7 +103,7 @@ class GenerateBase {
   }
   /**
    * @description: _ 转 驼峰
-   * @param key
+   * @param key 输入字符
    * @param type defalut大驼峰 small小驼峰
    */
   protected _toCamelCase(
@@ -106,7 +111,7 @@ class GenerateBase {
     // 大驼峰/小驼峰
     type: "defalut" | "small" = "small"
   ): string {
-    const small = key.replaceAll(/\_([a-zA-Z])/g, (_match, p1: string) =>
+    const small = key.replaceAll(/\B_([a-zA-Z])/g, (_match, p1: string) =>
       p1.toLocaleUpperCase()
     );
     if (type === "defalut")
@@ -119,14 +124,17 @@ class GenerateBase {
    * @description: 驼峰转下划线
    * @param {string} key
    */
-  protected toUnderline(key: string): string {
+  protected _toUnderline(key: string): string {
     key = key.replace(/^\S/, (match) => {
       return match.toLocaleLowerCase();
     });
-    const res = key.replaceAll(
-      /[A-Z]/g,
-      (match) => `_${match.toLocaleLowerCase()}`
-    );
+    const res = key
+      .replaceAll(/_?[A-Z]/g, (match) =>
+        match.includes("_")
+          ? match.toLocaleLowerCase()
+          : `_${match.toLocaleLowerCase()}`
+      )
+      .replace(/^[a-z]/i, (match) => match.toLocaleLowerCase());
     return res;
   }
   /**
@@ -348,7 +356,7 @@ export class GenerateDart extends GenerateBase {
     return baseCode;
   }
   private _insertToJsonProperty(key: string, type: string) {
-    const jsonKey = this.toUnderline(key);
+    const jsonKey = this._toUnderline(key);
 
     let baseCode = `_data['${jsonKey}'] = ${key};`;
     const typeMatch = type.match(/^List<(\S+)>(\??)/);
@@ -666,7 +674,7 @@ export class GenerateArrayDart extends GenerateBase {
     return baseCode;
   }
   private _instertToJson(key: string, type: string) {
-    const jsonKey = this.toUnderline(key);
+    const jsonKey = this._toUnderline(key);
     let baseCode = `_data['${jsonKey}'] = ${key};`;
     const typeMatch = type.match(/^List<(\S+)>(\??)/);
     if (this._baseDartType.includes(type))
