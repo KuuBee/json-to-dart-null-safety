@@ -22,6 +22,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import TranslateIcon from "@material-ui/icons/Translate";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { enUs } from "../language/en-us";
+import { AppFAB } from "../widget/appFAB";
 
 interface InitProp {
   lang?: string;
@@ -254,6 +255,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
           {errorMsg}
         </MuiAlert>
       </Snackbar>
+      <AppFAB></AppFAB>
     </div>
   );
 };

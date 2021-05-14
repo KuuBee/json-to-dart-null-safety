@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-04-13 14:54:40
+ * @LastEditTime: 2021-05-14 15:23:31
  */
 
 import parse, {
@@ -22,6 +22,11 @@ interface GenerateDartOptions {
 }
 interface GenerateArrayDartOptions extends GenerateDartOptions {
   val: ObjectNode[];
+}
+interface IterationValType<T = any> {
+  key: string;
+  type: "Object" | "Array" | "Literal";
+  val: T[];
 }
 
 export class GenerateBase {
@@ -204,8 +209,21 @@ export class GenerateDart extends GenerateBase {
    * @param {*}
    * @return {*}
    */
-  generateClass(): GenerateDart {
-    this._res = `\n  class ${this._className} {
+  generateClass(
+    { isEmpty }: { isEmpty: boolean } = { isEmpty: false }
+  ): GenerateDart {
+    if (isEmpty)
+      this._res = `\n  class ${this._className} {
+
+        ${this._className}();
+  
+        ${this._className}.fromJson(Map<String, dynamic> json) {
+          // Empty Class
+        }
+        Map<String, dynamic> toJson() =><String, dynamic>{};
+      }`;
+    else
+      this._res = `\n  class ${this._className} {
       ${this._property}
 
       ${this._className}({
@@ -244,7 +262,8 @@ export class GenerateDart extends GenerateBase {
   // 一键转换
   toDart(data: parse.ValueNode): string {
     if (data.type === "Object") {
-      this.generateClass();
+      this.generateClass({ isEmpty: !data.children.length });
+
       data.children.forEach(({ key: { value: key }, value }) => {
         const { type } = value;
         switch (type) {
@@ -286,7 +305,7 @@ export class GenerateDart extends GenerateBase {
               });
               const res = new GenerateArrayDart({
                 className: key,
-                val: ((value as ArrayNode).children as unknown) as ObjectNode[]
+                val: (value as ArrayNode).children as unknown as ObjectNode[]
               }).toDart();
               this._res += res;
             }
@@ -397,11 +416,6 @@ export class GenerateDart extends GenerateBase {
     );
   }
 }
-interface IterationValType<T = any> {
-  key: string;
-  type: "Object" | "Array" | "Literal";
-  val: T[];
-}
 
 // 用于处理数组对象
 export class GenerateArrayDart extends GenerateBase {
@@ -457,8 +471,22 @@ export class GenerateArrayDart extends GenerateBase {
   }
 
   // 创建一个class
-  generateClass(): GenerateArrayDart {
-    this._res = `\n  class ${this._className} {
+  generateClass(
+    { isEmpty }: { isEmpty: boolean } = { isEmpty: false }
+  ): GenerateArrayDart {
+    if (isEmpty)
+      this._res = `\n  class ${this._className} {
+
+      ${this._className}();
+
+      ${this._className}.fromJson(Map<String, dynamic> json) {
+        // Empty Class
+      }
+
+      Map<String, dynamic> toJson() =><String, dynamic>{};
+    }`;
+    else
+      this._res = `\n  class ${this._className} {
       ${this._property}
 
       ${this._className}({
@@ -495,7 +523,7 @@ export class GenerateArrayDart extends GenerateBase {
   }
 
   toDart() {
-    this.generateClass();
+    this.generateClass({ isEmpty: !this.val.length });
     this.val.forEach((item) => {
       let type: GenerateVariableType;
       // 基础类型
