@@ -198,6 +198,9 @@ const Home: NextPage<InitProp> = ({ lang }) => {
             {languageContent.convertToDart}
           </Button>
           <TextField
+            style={{
+              width: "200px"
+            }}
             label={languageContent.setRootClassName}
             defaultValue={rootClassName}
             onChange={rootClassNameChange}
