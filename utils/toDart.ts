@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-05-17 15:31:46
+ * @LastEditTime: 2021-05-17 15:39:08
  */
 
 import parse, {
@@ -14,7 +14,7 @@ import parse, {
 } from "json-to-ast";
 
 // 如果为null就转换为 dynamic
-type DartBaseType = "String" | "bool" | "int" | "double" | "dynamic";
+type DartBaseType = "String" | "bool" | "int" | "double" | "dynamic" | "num";
 // 生成参数时的变量类型
 type GenerateVariableType = "base" | "object" | "arrayBase" | "arrayObject";
 interface GenerateDartOptions {
@@ -50,6 +50,7 @@ export class GenerateBase {
     "bool",
     "int",
     "double",
+    "num",
     "Null",
     "dynamic"
   ];
@@ -628,15 +629,17 @@ export class GenerateArrayDart extends GenerateBase {
       if (_type !== "Null") {
         // type = _type;
         typeList.push(_type);
-      }
+      } else typeList.push(_type);
       if (_type === "Null" && !nullFlag) nullFlag = true;
     });
     const baseTypeRes = Array.from(new Set(typeList));
     // 这里修复了一个问题
     // 如果 val 为 [1,3,4,5,6.2,8.9,1]
-    // 则应该收敛成 double 而不是 int
-    if (baseTypeRes.length > 1) type = "double";
+    // 则应该扩展 num 而不是 数组最后一位的type
+    if (baseTypeRes.length > 1) type = "num";
     else type = baseTypeRes[0];
+    console.log("baseTypeRes", baseTypeRes);
+
     return `${type}${type !== "Null" && nullFlag ? "?" : ""}`;
   }
 
