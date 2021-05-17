@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-05-14 15:23:31
+ * @LastEditTime: 2021-05-17 15:29:05
  */
 
 import parse, {
@@ -514,6 +514,10 @@ export class GenerateArrayDart extends GenerateBase {
     const camelCaseName = this._toCamelCase(key);
 
     const type = this._getDartType(val, key, valType);
+    console.log("val", val);
+    console.log("key", key);
+    console.log("valType", valType);
+    console.log("type", type);
 
     this._insertProperty(type, camelCaseName);
     this._insertConstructorProperty(camelCaseName);
@@ -556,6 +560,8 @@ export class GenerateArrayDart extends GenerateBase {
         }).toDart();
         this._res += res;
       }
+      console.log("generateVariable", item.key, item, type);
+
       this.generateVariable(item.key, item, type);
     });
     return this.getRes();
@@ -619,15 +625,23 @@ export class GenerateArrayDart extends GenerateBase {
     // 如果上面都没走 那就是基础类型
     // 基础类型
     let type: string = "Null",
-      nullFlag: boolean = false;
+      nullFlag: boolean = false,
+      typeList: string[] = [];
     val.val.forEach((item: any) => {
       if (val.type !== "Literal") return;
       const _type = this._getDartBaseType(item);
       if (_type !== "Null") {
-        type = _type;
+        // type = _type;
+        typeList.push(_type);
       }
       if (_type === "Null" && !nullFlag) nullFlag = true;
     });
+    const baseTypeRes = Array.from(new Set(typeList));
+    // 这里修复了一个问题 
+    // 如果 val 为 [1,3,4,5,6.2,8.9,1]
+    // 则应该收敛成 double 而不是 int
+    if (baseTypeRes.length > 1) type = "double";
+    else type = baseTypeRes[0];
     return `${type}${type !== "Null" && nullFlag ? "?" : ""}`;
   }
 
