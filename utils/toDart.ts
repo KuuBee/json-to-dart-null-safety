@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-05-17 15:29:05
+ * @LastEditTime: 2021-05-17 15:31:46
  */
 
 import parse, {
@@ -514,10 +514,6 @@ export class GenerateArrayDart extends GenerateBase {
     const camelCaseName = this._toCamelCase(key);
 
     const type = this._getDartType(val, key, valType);
-    console.log("val", val);
-    console.log("key", key);
-    console.log("valType", valType);
-    console.log("type", type);
 
     this._insertProperty(type, camelCaseName);
     this._insertConstructorProperty(camelCaseName);
@@ -560,7 +556,6 @@ export class GenerateArrayDart extends GenerateBase {
         }).toDart();
         this._res += res;
       }
-      console.log("generateVariable", item.key, item, type);
 
       this.generateVariable(item.key, item, type);
     });
@@ -637,7 +632,7 @@ export class GenerateArrayDart extends GenerateBase {
       if (_type === "Null" && !nullFlag) nullFlag = true;
     });
     const baseTypeRes = Array.from(new Set(typeList));
-    // 这里修复了一个问题 
+    // 这里修复了一个问题
     // 如果 val 为 [1,3,4,5,6.2,8.9,1]
     // 则应该收敛成 double 而不是 int
     if (baseTypeRes.length > 1) type = "double";
