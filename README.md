@@ -12,7 +12,7 @@
 
 > 使用了 Nextjs 进行开发，更多命令请查看 [https://nextjs.org/](https://nextjs.org/)。
 
-或者你也可以通过 clone 本仓库来进行你的本地部署。
+或者您也可以通过 clone 本仓库来进行您的本地部署。
 
 本地部署需要您具有一下环境：
 
@@ -27,7 +27,7 @@ npm i
 npm run dev
 ```
 
-在你的浏览器打开 [http://localhost:3000/jsontodart](http://localhost:3000/jsontodart) 来进行预览。
+在您的浏览器打开 [http://localhost:3000/jsontodart](http://localhost:3000/jsontodart) 来进行预览。
 
 # 注意事项
 

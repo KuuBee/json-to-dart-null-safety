@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-05-17 15:39:08
+ * @LastEditTime: 2021-05-26 15:21:14
  */
 
 import parse, {
@@ -12,6 +12,7 @@ import parse, {
   ObjectNode,
   ValueNode
 } from "json-to-ast";
+import { type } from "node:os";
 
 // 如果为null就转换为 dynamic
 type DartBaseType = "String" | "bool" | "int" | "double" | "dynamic" | "num";
