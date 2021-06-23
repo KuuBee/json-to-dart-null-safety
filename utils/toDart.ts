@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-03-27 14:37:39
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-05-26 15:21:14
+ * @LastEditTime: 2021-06-23 14:12:41
  */
 
 import parse, {
@@ -639,7 +639,6 @@ export class GenerateArrayDart extends GenerateBase {
     // 则应该扩展 num 而不是 数组最后一位的type
     if (baseTypeRes.length > 1) type = "num";
     else type = baseTypeRes[0];
-    console.log("baseTypeRes", baseTypeRes);
 
     return `${type}${type !== "Null" && nullFlag ? "?" : ""}`;
   }

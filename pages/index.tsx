@@ -95,6 +95,8 @@ const Home: NextPage<InitProp> = ({ lang }) => {
       return;
     }
     const res = toAst(inputVal);
+    console.log('ast',res);
+    
     const resCode = new GenerateDart({ className: rootClassName }).toDart(res);
     setOututVal(resCode);
     setLoading(false);
