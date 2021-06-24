@@ -3,9 +3,10 @@ import Head from "next/head";
 import { ChangeEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.scss";
 import { GenerateDart } from "../utils/toDart";
+import * as GD from "../core/generate_dart";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { AppLanguage, languageSource } from "../language";
-import parse from "json-to-ast";
+import parse, { ObjectNode } from "json-to-ast";
 import Button from "@material-ui/core/Button";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -95,9 +96,23 @@ const Home: NextPage<InitProp> = ({ lang }) => {
       return;
     }
     const res = toAst(inputVal);
-    console.log('ast',res);
-    
-    const resCode = new GenerateDart({ className: rootClassName }).toDart(res);
+    console.log("ast", res);
+
+    // if (res.type === "Object") {
+    //   const xxx = new GD.GenerateDart(res).getRes();
+    // }
+    if (res.type !== "Object") throw "error type!";
+    const resCode = new GD.GenerateDart({
+      type: "Object",
+      children: [
+        {
+          key: { type: "Identifier", value: rootClassName, raw: rootClassName },
+          type: "Property",
+          value: res as ObjectNode
+        }
+      ]
+    }).getRes();
+    // const resCode = new GenerateDart({ className: rootClassName }).toDart(res);
     setOututVal(resCode);
     setLoading(false);
     setSuccess(true);
