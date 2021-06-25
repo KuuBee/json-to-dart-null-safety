@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:30:09
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-24 17:21:09
+ * @LastEditTime: 2021-06-25 16:24:24
  */
 import parse, { ObjectNode, ValueNode } from "json-to-ast";
 import { GenerateDartType } from "./generate_dart_type";
@@ -31,7 +31,9 @@ export class GenerateCalss {
     this.isEmpty ? "" : "\n}"
   });${declareVariableAnnotate}
   
-  ${this.className}.fromJson(Map<String, dynamic> json)${
+  ${this.className}.fromJson(Map${
+    this.isEmpty ? "" : "<String, dynamic>"
+  } json)${
     this.isEmpty
       ? ";"
       : `{${fromJsonAnnotate}
@@ -97,10 +99,9 @@ export class GenerateCalss {
     key: string,
     rawKey: string
   ) {
-    let insertCode = `${key} = json['${rawKey}'];`;
-
-    console.log(type.astType, key);
-    // console.log(type.astType);
+    let insertCode = `${key} = ${
+      type.nullable ? "null" : `json['${rawKey}']`
+    };`;
 
     switch (type.astType) {
       case "Object":

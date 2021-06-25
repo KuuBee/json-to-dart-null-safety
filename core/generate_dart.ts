@@ -3,10 +3,10 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:20:10
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-24 16:55:36
+ * @LastEditTime: 2021-06-25 16:18:43
  */
 
-import parse, { ArrayNode, ObjectNode } from "json-to-ast";
+import parse, { ArrayNode, LiteralNode, ObjectNode } from "json-to-ast";
 import { GenerateCalss } from "./generate_class";
 import { Utils } from "./utils";
 
@@ -21,7 +21,8 @@ export interface ArrayObject {
 
 export class GenerateDart {
   constructor(data: ObjectNode) {
-    this._flatData(data);
+    this._flatData([data]);
+    console.log("_needParseData", this._needParseData);
   }
 
   getRes(): string {
@@ -42,42 +43,55 @@ export class GenerateDart {
   private _needParseData: NeedParseData[] = [];
   private _needParseKeys: string[] = [];
 
-  private _flatData(data: ObjectNode) {
-    let iterationData: ObjectNode | null = null;
-    for (const item of data.children) {
-      if (this._needParseKeys.includes(item.key.value)) continue;
-      switch (item.value.type) {
-        case "Object":
-          {
-            iterationData = item.value;
-            this._needParseData.push({
-              key: item.key.value,
-              data: item.value
-            });
-            this._needParseKeys.push(item.key.value);
+  private _flatData(data: (ObjectNode | LiteralNode)[]) {
+    let firstObjNode: ObjectNode | null = null;
+    for (const item of data) {
+      if (item.type === "Object") firstObjNode = item;
+      break;
+    }
+    const newObjData: {
+      [key: string]: (ObjectNode | LiteralNode)[];
+    } = {};
+    if (!firstObjNode) return;
+    for (let i = 0; i < firstObjNode.children.length; i++) {
+      const element = firstObjNode.children[i];
+      const itemDataList: (ObjectNode | LiteralNode)[] = [];
+      for (const obj of data) {
+        if (obj.type === "Literal") continue;
+        else {
+          const currentData = obj.children[i].value;
+          switch (currentData.type) {
+            case "Object":
+              itemDataList.push(currentData);
+              break;
+            case "Array":
+              if (currentData.children.every((item) => item.type != "Array"))
+                itemDataList.push(
+                  ...(currentData.children as (ObjectNode | LiteralNode)[])
+                );
+              break;
+            default:
+              break;
           }
-          break;
-        case "Array":
-          if (
-            !item.value.children.every((subItem) => subItem.type === "Literal")
-          ) {
-            for (const subItem of item.value.children) {
-              if (subItem.type === "Object") {
-                iterationData = subItem;
-                break;
-              }
-            }
-            this._needParseData.push({
-              key: item.key.value,
-              data: item.value
-            });
-            this._needParseKeys.push(item.key.value);
-          }
-          break;
-        default:
-          break;
+        }
       }
-      if (iterationData) this._flatData(iterationData);
+      if (itemDataList.length) newObjData[element.key.value] = itemDataList;
+    }
+    console.log(newObjData);
+    for (const key in newObjData) {
+      if (Object.prototype.hasOwnProperty.call(newObjData, key)) {
+        const element = newObjData[key];
+        if (this._needParseKeys.includes(key)) continue;
+        this._needParseKeys.push(key);
+        this._needParseData.push({
+          key,
+          data: {
+            type: "Array",
+            children: element
+          }
+        });
+        this._flatData(element);
+      }
     }
   }
 }

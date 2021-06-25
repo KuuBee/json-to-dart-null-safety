@@ -5,6 +5,7 @@ import styles from "../styles/Home.module.scss";
 import { GenerateDart } from "../utils/toDart";
 import * as GD from "../core/generate_dart";
 import SyntaxHighlighter from "react-syntax-highlighter";
+import style from "react-syntax-highlighter/dist/cjs/styles/hljs/tomorrow-night";
 import { AppLanguage, languageSource } from "../language";
 import parse, { ObjectNode } from "json-to-ast";
 import Button from "@material-ui/core/Button";
@@ -24,6 +25,7 @@ import TranslateIcon from "@material-ui/icons/Translate";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { enUs } from "../language/en-us";
 import { AppFAB } from "../widget/appFAB";
+import { JsonInput } from "../widget/jsonInput";
 
 interface InitProp {
   lang?: string;
@@ -228,7 +230,13 @@ const Home: NextPage<InitProp> = ({ lang }) => {
           </Button>
         </h2>
         <div className={styles.content}>
-          <TextField
+          <JsonInput
+            className={styles.input}
+            languageContent={languageContent}
+            value={inputVal}
+            onChange={inputChange}
+          ></JsonInput>
+          {/* <TextField
             multiline
             fullWidth
             className={styles.input}
@@ -237,7 +245,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
             placeholder={languageContent.enterYourJson}
             value={inputVal}
             onChange={inputChange}
-          ></TextField>
+          ></TextField> */}
           <Paper className={styles.output} elevation={3}>
             <span
               style={{ display: outputVal || loading ? "none" : "block" }}
@@ -251,7 +259,9 @@ const Home: NextPage<InitProp> = ({ lang }) => {
             >
               <CircularProgress></CircularProgress>
             </span>
-            <SyntaxHighlighter language="dart">{outputVal}</SyntaxHighlighter>
+            <SyntaxHighlighter style={style} language="dart">
+              {outputVal}
+            </SyntaxHighlighter>
           </Paper>
         </div>
       </main>
