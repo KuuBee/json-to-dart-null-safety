@@ -6,29 +6,45 @@
  * @LastEditTime: 2021-06-25 17:20:14
  */
 
-import { NextComponentType } from "next";
-import styles from "../styles/widget/JsonInput.module.scss";
 import TextField from "@material-ui/core/TextField";
 import { AppLanguage } from "../language";
 import { FunctionComponent } from "react";
 import { OutlinedInputProps } from "@material-ui/core";
+import style from '../styles/widget/JsonInput.module.scss'
+import dynamic from "next/dynamic";
+
+const ReactJson = dynamic(import('react-json-view'), { ssr: false });
 
 export const JsonInput: FunctionComponent<{
   languageContent: AppLanguage.Key;
   value: string;
-  className: string;
+  className?: string;
   onChange?: OutlinedInputProps["onChange"];
 }> = ({ languageContent, value, className, onChange }) => {
+  const _className = `${className ?? ''} ${style.JsonInput}`;
+  let jsonObj = {};
+  let isParseSuccess = false;
+
+  try {
+    jsonObj = JSON.parse(value);
+    isParseSuccess = true;
+  } catch (error) {
+    console.warn(error);
+  }
+
   return (
-    <TextField
-      multiline
-      fullWidth
-      className={className}
-      variant="outlined"
-      label={languageContent.jsonToBeConverted}
-      placeholder={languageContent.enterYourJson}
-      value={value}
-      onChange={onChange}
-    ></TextField>
+    <div className={_className}>
+      {isParseSuccess
+        ? <ReactJson src={jsonObj} />
+        : <TextField
+          multiline
+          fullWidth
+          variant="outlined"
+          label={languageContent.jsonToBeConverted}
+          placeholder={languageContent.enterYourJson}
+          value={value}
+          onChange={onChange}
+        ></TextField>}
+    </div>
   );
 };

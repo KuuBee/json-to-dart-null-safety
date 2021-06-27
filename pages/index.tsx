@@ -26,13 +26,14 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { enUs } from "../language/en-us";
 import { AppFAB } from "../widget/appFAB";
 import { JsonInput } from "../widget/jsonInput";
+import Grid from '@material-ui/core/Grid';
 
 interface InitProp {
   lang?: string;
 }
 
 const Home: NextPage<InitProp> = ({ lang }) => {
-  const [inputVal, setInputVal] = useState("");
+  const [inputVal, setInputVal] = useState(`{"code":0,"message":"0","ttl":1,"data":{"isLogin":true,"email_verified":1,"face":"http://i0.hdslb.com/bfs/face/a6a999e9e82db2de84115ec4af841fee3f7417d1.jpg","level_info":{"current_level":6,"current_min":28800,"current_exp":31517,"next_exp":"--"},"mid":34917492,"mobile_verified":1,"money":191.4,"moral":70,"official":{"role":0,"title":"","desc":"","type":-1},"officialVerify":{"type":-1,"desc":""},"pendant":{"pid":0,"name":"","image":"","expire":0,"image_enhance":"","image_enhance_frame":""},"scores":0,"uname":"不学好js不改名","vipDueDate":1634659200000,"vipStatus":1,"vipType":2,"vip_pay_type":1,"vip_theme_type":0,"vip_label":{"path":"http://i0.hdslb.com/bfs/vip/label_annual.png","text":"年度大会员","label_theme":"annual_vip","text_color":"#FFFFFF","bg_style":1,"bg_color":"#FB7299","border_color":""},"vip_avatar_subscript":1,"vip_nickname_color":"#FB7299","vip":{"type":2,"status":1,"due_date":1634659200000,"vip_pay_type":1,"theme_type":0,"label":{"path":"http://i0.hdslb.com/bfs/vip/label_annual.png","text":"年度大会员","label_theme":"annual_vip","text_color":"#FFFFFF","bg_style":1,"bg_color":"#FB7299","border_color":""},"avatar_subscript":1,"nickname_color":"#FB7299","role":3,"avatar_subscript_url":"http://i0.hdslb.com/bfs/vip/icon_Certification_big_member_22_3x.png"},"wallet":{"mid":34917492,"bcoin_balance":0,"coupon_balance":0,"coupon_due_time":0},"has_shop":false,"shop_url":"","allowance_count":0,"answer_status":0}}`);
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
@@ -229,41 +230,34 @@ const Home: NextPage<InitProp> = ({ lang }) => {
             {languageContent.copy}
           </Button>
         </h2>
-        <div className={styles.content}>
-          <JsonInput
-            className={styles.input}
-            languageContent={languageContent}
-            value={inputVal}
-            onChange={inputChange}
-          ></JsonInput>
-          {/* <TextField
-            multiline
-            fullWidth
-            className={styles.input}
-            variant="outlined"
-            label={languageContent.jsonToBeConverted}
-            placeholder={languageContent.enterYourJson}
-            value={inputVal}
-            onChange={inputChange}
-          ></TextField> */}
-          <Paper className={styles.output} elevation={3}>
-            <span
-              style={{ display: outputVal || loading ? "none" : "block" }}
-              className={styles.placeholder}
-            >
-              {languageContent.noContentMsg}
-            </span>
-            <span
-              style={{ display: loading ? "block" : "none" }}
-              className={styles.loading}
-            >
-              <CircularProgress></CircularProgress>
-            </span>
-            <SyntaxHighlighter style={style} language="dart">
-              {outputVal}
-            </SyntaxHighlighter>
-          </Paper>
-        </div>
+        <Grid className={styles.content} container spacing={2}>
+          <Grid item xl={4} lg={4} xs={12}>
+            <JsonInput
+              languageContent={languageContent}
+              value={inputVal}
+              onChange={inputChange}
+            ></JsonInput>
+          </Grid>
+          <Grid item xl={8} lg={8} xs={12}>
+            <Paper className={styles.output} elevation={3}>
+              <div
+                style={{ display: outputVal || loading ? "none" : "block" }}
+                className={styles.placeholder}
+              >
+                {languageContent.noContentMsg}
+              </div>
+              <div
+                style={{ display: loading ? "block" : "none" }}
+                className={styles.loading}
+              >
+                <CircularProgress></CircularProgress>
+              </div>
+              <SyntaxHighlighter style={style} language="dart">
+                {outputVal}
+              </SyntaxHighlighter>
+            </Paper>
+          </Grid>
+        </Grid>
       </main>
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "right" }}

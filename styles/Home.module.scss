@@ -7,25 +7,9 @@
   }
   .content {
     $min-height: 70vh;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    .input,
     .output {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .input {
-      margin-right: 20px;
-      width: 30vw;
-      min-height: $min-height;
-    }
-    .output {
-      flex: 1;
       position: relative;
       margin: 0;
-      overflow: hidden;
       min-height: $min-height;
       .placeholder,
       .loading {
@@ -40,6 +24,7 @@
         font-size: 50px;
         color: #90caf9;
         user-select: none;
+        overflow: hidden;
       }
       pre {
         padding: 0;
