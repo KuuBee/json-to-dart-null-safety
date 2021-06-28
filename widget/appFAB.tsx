@@ -10,9 +10,8 @@ import Zoom from "@material-ui/core/Zoom";
 import Fab from "@material-ui/core/Fab";
 import UpIcon from "@material-ui/icons/KeyboardArrowUp";
 import { TransitionProps } from "@material-ui/core/transitions";
-import styles from "../styles/widget/AppFAB.module.scss";
+import styles from "../styles/widget/appFAB.module.scss";
 import { useEffect, useState } from "react";
-import { ToggleButtonGroup } from "@material-ui/lab";
 
 export const AppFAB: NextComponentType = (props) => {
   let screenHeight: number = NaN;
