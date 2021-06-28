@@ -5,6 +5,8 @@
  * @LastEditors: KuuBee
  * @LastEditTime: 2021-06-23 15:21:24
  */
+
+export type VoidCallback = () => void;
 export class Utils {
   /**
    * @description: _ 转 驼峰

@@ -23,6 +23,7 @@ export const enUs: AppLanguage.Type = {
     wrongJsonFormat: "Wrong JSON format!",
     errorStructureMsg: "This structure is not currently supported",
     convertError: "Oops!The conversion failed. Please try later.",
-    errorMsg: "Oops!There seems to be something wrong."
+    errorMsg: "Oops!There seems to be something wrong.",
+    edit: "edit"
   }
 };

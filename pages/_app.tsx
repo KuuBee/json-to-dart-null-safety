@@ -2,13 +2,13 @@ import { AppProps } from "next/dist/next-server/lib/router/router";
 import "../styles/globals.scss";
 import React from "react";
 import Head from "next/head";
-import { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "@material-ui/core/styles";
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import PropTypes from "prop-types";
+import {theme} from "../core/theme";
 
-const theme = {};
 export const cache = createCache({ key: "css", prepend: true });
 
 function MyApp({ Component, pageProps }: AppProps) {

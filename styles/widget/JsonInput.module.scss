@@ -1,8 +1,14 @@
 .JsonInput {
-  background-color: beige;
-  textarea,
-  .react-json-view {
-    max-height: 70vh;
-    overflow-y: auto !important;
+  padding: 16px;
+  overflow: auto;
+  max-height: 78vh;
+  min-height: 78vh;
+  .editButton {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  textarea {
+    color: #e4e9ff;
   }
 }

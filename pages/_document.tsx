@@ -7,7 +7,7 @@ import Document, {
   DocumentContext
 } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
-import theme from "../utils/theme";
+import {theme} from "../core/theme";
 import { ServerStyleSheets } from "@material-ui/core/styles";
 import { cache } from "./_app";
 

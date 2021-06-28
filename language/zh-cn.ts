@@ -23,6 +23,7 @@ export const zhCn: AppLanguage.Type = {
     wrongJsonFormat: "错误的JSON格式!",
     errorStructureMsg: "暂不支持该结构",
     convertError: "哎呀！转换失败了，请稍后尝试。",
-    errorMsg: "哎呀！好像出现了什么问题。"
+    errorMsg: "哎呀！好像出现了什么问题。",
+    edit: "编辑"
   }
 };

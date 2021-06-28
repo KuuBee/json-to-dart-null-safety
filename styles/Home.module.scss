@@ -5,35 +5,6 @@
     display: flex;
     align-items: center;
   }
-  .content {
-    $min-height: 70vh;
-    .output {
-      position: relative;
-      margin: 0;
-      min-height: $min-height;
-      .placeholder,
-      .loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        margin: auto;
-        text-align: center;
-        line-height: $min-height;
-        font-size: 50px;
-        color: #90caf9;
-        user-select: none;
-        overflow: hidden;
-      }
-      pre {
-        padding: 0;
-        margin: 0;
-        width: 100%;
-        min-height: $min-height;
-      }
-    }
-  }
 }
 .seo {
   position: absolute;

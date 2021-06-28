@@ -3,10 +3,10 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:30:09
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-25 16:24:24
+ * @LastEditTime: 2021-06-28 16:40:29
  */
 import parse, { ObjectNode, ValueNode } from "json-to-ast";
-import { GenerateDartType } from "./generate_dart_type";
+import { GenerateDartType } from "./generateDartType";
 import { Utils } from "./utils";
 
 const constructorVariableAnnotate = "///-constructor-variable";
@@ -28,7 +28,7 @@ export class GenerateCalss {
   // class 模板 之后的操作都在这个基础上进行
   dart = `class ${this.className} {
   ${this.className}(${this.isEmpty ? "" : "{"}${constructorVariableAnnotate}${
-    this.isEmpty ? "" : "\n}"
+    this.isEmpty ? "" : "\n\u0020\u0020}"
   });${declareVariableAnnotate}
   
   ${this.className}.fromJson(Map${
@@ -37,12 +37,12 @@ export class GenerateCalss {
     this.isEmpty
       ? ";"
       : `{${fromJsonAnnotate}
-}`
+\u0020\u0020}`
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};${toJsonAnnotate}
-    return _data;
+\u0020\u0020\u0020\u0020final _data = <String, dynamic>{};${toJsonAnnotate}
+\u0020\u0020\u0020\u0020return _data;
   }
 }`;
 
@@ -76,7 +76,9 @@ export class GenerateCalss {
 
   // 构造函数语句
   private _insertConstructorVariable(type: GenerateDartType, key: string) {
-    const insertCode = `${type.nullable ? "" : "required"} this.${key},`;
+    const insertCode = `\u0020\u0020\u0020\u0020${
+      type.nullable ? "" : "required"
+    } this.${key},`;
 
     this.dart = this.dart.replace(
       constructorVariableAnnotate,
@@ -86,7 +88,7 @@ export class GenerateCalss {
 
   // 声明变量语句
   private _insertDeclareVariable(type: GenerateDartType, key: string) {
-    const insertCode = `late final ${type.dartType} ${key};`;
+    const insertCode = `\u0020\u0020late final ${type.dartType} ${key};`;
     this.dart = this.dart.replace(
       declareVariableAnnotate,
       `\n${insertCode}${declareVariableAnnotate}`
@@ -116,12 +118,16 @@ export class GenerateCalss {
             rawKey,
             "defalut"
           )}.fromJson(e)).toList();`;
+        else {
+          // 这里不清楚 List.castFrom 是否会对性能产生影响
+          insertCode = `${key} = List.castFrom<dynamic, ${type.arrayType}>(json['${rawKey}']);`;
+        }
         break;
       default:
     }
     this.dart = this.dart.replace(
       fromJsonAnnotate,
-      `\n${insertCode}${fromJsonAnnotate}`
+      `\n\u0020\u0020\u0020\u0020${insertCode}${fromJsonAnnotate}`
     );
   }
 
@@ -141,7 +147,7 @@ export class GenerateCalss {
     }
     this.dart = this.dart.replace(
       toJsonAnnotate,
-      `\n${insertCode}${toJsonAnnotate}`
+      `\n\u0020\u0020\u0020\u0020${insertCode}${toJsonAnnotate}`
     );
   }
 

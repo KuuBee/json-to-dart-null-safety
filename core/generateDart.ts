@@ -3,11 +3,11 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:20:10
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-25 16:18:43
+ * @LastEditTime: 2021-06-28 16:45:13
  */
 
 import parse, { ArrayNode, LiteralNode, ObjectNode } from "json-to-ast";
-import { GenerateCalss } from "./generate_class";
+import { GenerateCalss } from "./generateClass";
 import { Utils } from "./utils";
 
 interface NeedParseData {
@@ -22,7 +22,6 @@ export interface ArrayObject {
 export class GenerateDart {
   constructor(data: ObjectNode) {
     this._flatData([data]);
-    console.log("_needParseData", this._needParseData);
   }
 
   getRes(): string {
@@ -65,10 +64,10 @@ export class GenerateDart {
               itemDataList.push(currentData);
               break;
             case "Array":
-              if (currentData.children.every((item) => item.type != "Array"))
-                itemDataList.push(
-                  ...(currentData.children as (ObjectNode | LiteralNode)[])
-                );
+              const canPushData: ObjectNode[] = currentData.children.filter(
+                (item) => item.type === "Object"
+              ) as ObjectNode[];
+              itemDataList.push(...canPushData);
               break;
             default:
               break;
@@ -77,7 +76,6 @@ export class GenerateDart {
       }
       if (itemDataList.length) newObjData[element.key.value] = itemDataList;
     }
-    console.log(newObjData);
     for (const key in newObjData) {
       if (Object.prototype.hasOwnProperty.call(newObjData, key)) {
         const element = newObjData[key];

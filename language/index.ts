@@ -28,6 +28,7 @@ export namespace AppLanguage {
     errorStructureMsg: string;
     convertError: string;
     errorMsg: string;
+    edit: string;
   }
 }
 export const languageSource: AppLanguage.Type[] = [enUs, zhCn];

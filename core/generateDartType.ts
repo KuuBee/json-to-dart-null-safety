@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:31:51
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-24 17:17:34
+ * @LastEditTime: 2021-06-28 16:48:26
  */
 import { ArrayNode, ValueNode, LiteralNode, ObjectNode } from "json-to-ast";
 import { Utils } from "./utils";
@@ -76,6 +76,11 @@ export class GenerateDartType {
 
   // 最终的类型
   dartType: string;
+  // 数组内部的类型 例如
+  // List<String> 则 ListType 为 String
+  // List<Data> 则 ListType 为 Data
+  // 如果不是数组则这个值为 undefined
+  arrayType?: string;
   // 是否可能为null
   // int? TestClass? List<int>? List<int?>?
   // 不包含 List<int?>
@@ -185,6 +190,7 @@ export class GenerateDartType {
     }
     // 当为 [[1,2,3],[4,5,6]]
     else throw "不支持多维数组";
+    this.arrayType = `${resType}${hasNull && resType != "dynamic" ? "?" : ""}`;
     return `List<${resType}${hasNull && resType != "dynamic" ? "?" : ""}>`;
   }
 }
