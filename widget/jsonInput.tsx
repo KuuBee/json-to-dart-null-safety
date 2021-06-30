@@ -3,12 +3,12 @@
  * @Author: KuuBee
  * @Date: 2021-06-25 16:52:58
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-28 17:22:46
+ * @LastEditTime: 2021-06-30 16:52:31
  */
 
 import TextField from "@material-ui/core/TextField";
 import { AppLanguage } from "../language";
-import { FunctionComponent } from "react";
+import { ChangeEvent, FunctionComponent } from "react";
 import { OutlinedInputProps } from "@material-ui/core";
 import style from "../styles/widget/jsonInput.module.scss";
 import dynamic from "next/dynamic";
@@ -24,12 +24,12 @@ const ReactJson = dynamic(import("react-json-view"), { ssr: false });
 
 export const JsonInput: FunctionComponent<{
   languageContent: AppLanguage.Key;
-  value: string;
   className?: string;
   isShowParse?: boolean;
+  json: { [key: string]: any };
   onEdit?: VoidCallback;
   onChange?: OutlinedInputProps["onChange"];
-}> = ({ languageContent, value, className, isShowParse, onChange, onEdit }) => {
+}> = ({ languageContent, json, className, isShowParse, onChange, onEdit }) => {
   const _className = `${className ?? ""} ${style.JsonInput}`;
   const StyledTextField = withStyles({
     root: {
@@ -45,25 +45,6 @@ export const JsonInput: FunctionComponent<{
     }
   })(TextField);
 
-  const inputElement = isShowParse ? (
-    <ReactJson
-      enableClipboard={false}
-      displayDataTypes={false}
-      theme="tomorrow"
-      src={JSON.parse(value)}
-    />
-  ) : (
-    <StyledTextField
-      multiline
-      fullWidth
-      variant="outlined"
-      label={languageContent.jsonToBeConverted}
-      placeholder={languageContent.enterYourJson}
-      value={value}
-      onChange={onChange}
-    ></StyledTextField>
-  );
-
   return (
     <div
       style={{
@@ -72,7 +53,23 @@ export const JsonInput: FunctionComponent<{
     >
       <ThemeProvider theme={{}}>
         <Paper className={_className}>
-          {inputElement}
+          {isShowParse ? (
+            <ReactJson
+              enableClipboard={false}
+              displayDataTypes={false}
+              theme="tomorrow"
+              src={json}
+            />
+          ) : (
+            <StyledTextField
+              multiline
+              fullWidth
+              variant="outlined"
+              label={languageContent.jsonToBeConverted}
+              placeholder={languageContent.enterYourJson}
+              onChange={onChange}
+            ></StyledTextField>
+          )}
           {isShowParse ? (
             <Tooltip title={languageContent.edit}>
               <IconButton

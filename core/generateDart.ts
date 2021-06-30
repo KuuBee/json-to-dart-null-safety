@@ -22,7 +22,6 @@ export interface ArrayObject {
 export class GenerateDart {
   constructor(data: ObjectNode) {
     this._flatData([data]);
-    console.log(this._needParseData);
   }
 
   getRes(): string {

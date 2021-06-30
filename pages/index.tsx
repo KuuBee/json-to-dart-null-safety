@@ -21,7 +21,9 @@ interface InitProp {
 }
 
 const Home: NextPage<InitProp> = ({ lang }) => {
-  const [inputVal, setInputVal] = useState("");
+  let inputVal: string = "";
+  let _rootClassName: string = "";
+  const [inputJson, setInputJson] = useState<any>({});
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
@@ -49,13 +51,12 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   };
 
   const inputChange = async (val: ChangeEvent<HTMLTextAreaElement>) => {
-    setInputVal(val.target.value);
+    inputVal = val.target.value;
   };
   // 转换Ast
   const toAst = (val: string): parse.ValueNode => {
     try {
       const res = JSON.stringify(JSON.parse(val), null, 4);
-      setInputVal(res);
       return parse(res, {
         loc: false
       });
@@ -69,6 +70,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   const convert = () => {
     setLoading(true);
     format();
+    setRootClassName(_rootClassName);
     if (inputVal.match(/^\[/)) {
       setErrorMsg(languageContent.errorStructureMsg);
       setError(true);
@@ -91,11 +93,15 @@ const Home: NextPage<InitProp> = ({ lang }) => {
     setLoading(false);
     setSuccess(true);
     setShowParse(true);
+    setInputJson(JSON.parse(inputVal));
   };
   // 格式化
   const format = () => {
     try {
-      setInputVal(JSON.stringify(JSON.parse(inputVal), null, 4));
+      // 校验是否为合法json
+      const val = inputVal ? inputVal : JSON.stringify(inputJson);
+      JSON.parse(val);
+      inputVal = val;
       setShowParse(true);
     } catch (error) {
       setErrorMsg(languageContent.wrongJsonFormat);
@@ -105,7 +111,8 @@ const Home: NextPage<InitProp> = ({ lang }) => {
     }
   };
   const rootClassNameChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setRootClassName(e.target.value);
+    _rootClassName = e.target.value;
+    // setRootClassName(e.target.value);
   };
   // 复制
   const copy = async () => {
@@ -162,8 +169,8 @@ const Home: NextPage<InitProp> = ({ lang }) => {
         <Grid className={styles.content} container spacing={2}>
           <Grid item xl={6} lg={6} xs={12}>
             <JsonInput
+              json={inputJson}
               languageContent={languageContent}
-              value={inputVal}
               isShowParse={isShowParse}
               onChange={inputChange}
               onEdit={() => setShowParse(false)}

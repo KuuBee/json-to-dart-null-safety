@@ -44,14 +44,10 @@ export class GenerateDartType {
     if (!arrayMod) this.dartType = this._getType(val!);
     else {
       const dartTypeList = [];
-      console.log("valList", valList);
-
       for (const item of valList!) {
         dartTypeList.push(this._getType(item));
       }
       const typeListRes = Array.from(new Set(dartTypeList));
-      console.log("dartTypeList", dartTypeList);
-
       if (typeListRes.length > 1 || typeListRes.includes("Null")) {
         const notNullType = typeListRes.filter((item) => item != "Null");
         if (this._isArray) {
@@ -59,8 +55,6 @@ export class GenerateDartType {
           const notListDynamicType = notNullType.filter(
             (item) => item != "List<dynamic>"
           );
-          console.log("notListDynamicType", notListDynamicType);
-
           if (notListDynamicType.length) {
             this.dartType = notListDynamicType[0];
           } else {
@@ -213,7 +207,6 @@ export class GenerateDartType {
     }
     // 当为 [[1,2,3],[4,5,6]]
     else throw "不支持多维数组";
-    console.log("valList", valList);
     this.arrayType = `${resType}${hasNull && resType != "dynamic" ? "?" : ""}`;
     return `List<${resType}${hasNull && resType != "dynamic" ? "?" : ""}>`;
   }
