@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:20:10
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-28 16:45:13
+ * @LastEditTime: 2021-06-30 15:53:53
  */
 
 import parse, { ArrayNode, LiteralNode, ObjectNode } from "json-to-ast";
@@ -22,6 +22,7 @@ export interface ArrayObject {
 export class GenerateDart {
   constructor(data: ObjectNode) {
     this._flatData([data]);
+    console.log(this._needParseData);
   }
 
   getRes(): string {
