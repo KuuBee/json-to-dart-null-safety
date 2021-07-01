@@ -15,20 +15,20 @@ import { JsonInput } from "../widget/jsonInput";
 import Grid from "@material-ui/core/Grid";
 import { DartOutput } from "../widget/dartOutput";
 import { AppHeader } from "../widget/appHeader";
+import { useMemo } from "react";
 
 interface InitProp {
   lang?: string;
 }
 
 const Home: NextPage<InitProp> = ({ lang }) => {
-  let inputVal: string = "";
   let _rootClassName: string = "";
-  const [inputJson, setInputJson] = useState<any>({});
+  const [inputValue, setinputValue] = useState<string>("");
   const [outputVal, setOututVal] = useState<string>("");
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [rootClassName, setRootClassName] = useState("AutoGenerate");
+  const [success, setSuccess] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [rootClassName, setRootClassName] = useState<string>("AutoGenerate");
   // 默认语言
   const defaultLanguage = languageSource.filter((item) => item.enName === lang);
   const [language, setLanguage] = useState<AppLanguage.Type>(
@@ -51,7 +51,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   };
 
   const inputChange = async (val: ChangeEvent<HTMLTextAreaElement>) => {
-    inputVal = val.target.value;
+    setinputValue(val.target.value);
   };
   // 转换Ast
   const toAst = (val: string): parse.ValueNode => {
@@ -71,13 +71,13 @@ const Home: NextPage<InitProp> = ({ lang }) => {
     setLoading(true);
     format();
     setRootClassName(_rootClassName);
-    if (inputVal.match(/^\[/)) {
+    if (inputValue.match(/^\[/)) {
       setErrorMsg(languageContent.errorStructureMsg);
       setError(true);
       setLoading(false);
       return;
     }
-    const res = toAst(inputVal);
+    const res = toAst(inputValue);
     if (res.type !== "Object") throw "error type!";
     const resCode = new GenerateDart({
       type: "Object",
@@ -93,15 +93,12 @@ const Home: NextPage<InitProp> = ({ lang }) => {
     setLoading(false);
     setSuccess(true);
     setShowParse(true);
-    setInputJson(JSON.parse(inputVal));
   };
   // 格式化
   const format = () => {
     try {
       // 校验是否为合法json
-      const val = inputVal ? inputVal : JSON.stringify(inputJson);
-      JSON.parse(val);
-      inputVal = val;
+      JSON.parse(inputValue);
       setShowParse(true);
     } catch (error) {
       setErrorMsg(languageContent.wrongJsonFormat);
@@ -168,13 +165,16 @@ const Home: NextPage<InitProp> = ({ lang }) => {
         </h2>
         <Grid className={styles.content} container spacing={2}>
           <Grid item xl={6} lg={6} xs={12}>
-            <JsonInput
-              json={inputJson}
-              languageContent={languageContent}
-              isShowParse={isShowParse}
-              onChange={inputChange}
-              onEdit={() => setShowParse(false)}
-            ></JsonInput>
+            {useMemo(() => {
+              return (
+                <JsonInput
+                  languageContent={languageContent}
+                  isShowParse={isShowParse}
+                  onEdit={() => setShowParse(false)}
+                  onChange={(str) => setinputValue(str)}
+                ></JsonInput>
+              );
+            }, [isShowParse, languageContent])}
           </Grid>
           <Grid item xl={6} lg={6} xs={12}>
             <DartOutput
