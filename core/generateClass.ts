@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:30:09
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-28 16:40:29
+ * @LastEditTime: 2021-06-30 16:29:16
  */
 import parse, { ObjectNode, ValueNode } from "json-to-ast";
 import { GenerateDartType } from "./generateDartType";
@@ -57,6 +57,7 @@ export class GenerateCalss {
         valList.push(this.data[i].children[j].value);
       }
       const rawKey = firstCanUseData.children[j].key.value;
+
       const dartType = new GenerateDartType({
         valList,
         key: rawKey,

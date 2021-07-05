@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:31:51
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-28 16:48:26
+ * @LastEditTime: 2021-06-30 16:28:14
  */
 import { ArrayNode, ValueNode, LiteralNode, ObjectNode } from "json-to-ast";
 import { Utils } from "./utils";
@@ -48,11 +48,26 @@ export class GenerateDartType {
         dartTypeList.push(this._getType(item));
       }
       const typeListRes = Array.from(new Set(dartTypeList));
-      if (typeListRes.length > 1 && typeListRes.includes("null")) {
-        this.dartType =
-          (typeListRes[0] === "null" ? typeListRes[1] : typeListRes[0]) + "?";
+      if (typeListRes.length > 1 || typeListRes.includes("Null")) {
+        const notNullType = typeListRes.filter((item) => item != "Null");
+        if (this._isArray) {
+          // 数组值 [List<dynamic>,List<int>,Null]
+          const notListDynamicType = notNullType.filter(
+            (item) => item != "List<dynamic>"
+          );
+          if (notListDynamicType.length) {
+            this.dartType = notListDynamicType[0];
+          } else {
+            this.dartType = notNullType[0];
+          }
+        } else {
+          // 普通值 [int,int,Null]
+          this.dartType = notNullType.length ? notNullType[0] + "?" : "Null";
+        }
+        this.nullable = notNullType.length < typeListRes.length;
+        if (this._isArray && this.nullable) this.dartType = `${this.dartType}?`;
         const astTypeList = valList!.map((item) => item.type);
-        if (astTypeList.length > 1) {
+        if (astTypeList.length <= 1) {
           this.astType = astTypeList[0];
         } else {
           if (!astTypeList.includes("Literal")) this.astType = astTypeList[0];
@@ -88,6 +103,7 @@ export class GenerateDartType {
   // 是否为 对象数组
   // [{"a":1},{"a":2}]
   isArrayObject: boolean = false;
+  private _isArray: boolean = false;
 
   astType?: AstType;
 
@@ -103,7 +119,8 @@ export class GenerateDartType {
         res = Utils._toCamelCase(Utils._toUnderline(this.key), "defalut");
         break;
       case "Array":
-        res = this._getDartArrayType(val as ArrayNode, val.type);
+        this._isArray = true;
+        res = this._getDartArrayType(val as ArrayNode);
         break;
       default:
         res = "dynamic";
@@ -136,7 +153,7 @@ export class GenerateDartType {
     return resType;
   }
   // 获取数组类型
-  private _getDartArrayType(data: ArrayNode, valType: AstType) {
+  private _getDartArrayType(data: ArrayNode) {
     const children = data.children;
     let typeList: AstType[] = [];
     let valList: any[] = [];
