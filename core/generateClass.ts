@@ -27,18 +27,15 @@ export class GenerateCalss {
 
   // class 模板 之后的操作都在这个基础上进行
   dart = `class ${this.className} {
-  ${this.className}(${this.isEmpty ? "" : "{"}${constructorVariableAnnotate}${
-    this.isEmpty ? "" : "\n\u0020\u0020}"
-  });${declareVariableAnnotate}
+  ${this.className}(${this.isEmpty ? "" : "{"}${constructorVariableAnnotate}${this.isEmpty ? "" : "\n\u0020\u0020}"
+    });${declareVariableAnnotate}
   
-  ${this.className}.fromJson(Map${
-    this.isEmpty ? "" : "<String, dynamic>"
-  } json)${
-    this.isEmpty
+  ${this.className}.fromJson(Map${this.isEmpty ? "" : "<String, dynamic>"
+    } json)${this.isEmpty
       ? ";"
       : `{${fromJsonAnnotate}
 \u0020\u0020}`
-  }
+    }
 
   Map<String, dynamic> toJson() {
 \u0020\u0020\u0020\u0020final _data = <String, dynamic>{};${toJsonAnnotate}
@@ -76,9 +73,8 @@ export class GenerateCalss {
 
   // 构造函数语句
   private _insertConstructorVariable(type: GenerateDartType, key: string) {
-    const insertCode = `\u0020\u0020\u0020\u0020${
-      type.nullable ? "" : "required"
-    } this.${key},`;
+    const insertCode = `\u0020\u0020\u0020\u0020${type.nullable ? "" : "required"
+      } this.${key},`;
 
     this.dart = this.dart.replace(
       constructorVariableAnnotate,
@@ -101,9 +97,8 @@ export class GenerateCalss {
     key: string,
     rawKey: string
   ) {
-    let insertCode = `${key} = ${
-      type.nullable ? "null" : `json['${rawKey}']`
-    };`;
+    let insertCode = `${key} = ${type.nullable ? "null" : `json['${rawKey}']`
+      };`;
 
     switch (type.astType) {
       case "Object":
@@ -113,6 +108,7 @@ export class GenerateCalss {
         )}.fromJson(json['${rawKey}']);`;
         break;
       case "Array":
+        // TODO 存在为 List<int>? 的情况需要处理一下
         if (type.isArrayObject)
           insertCode = `${key} = List.from(json['${rawKey}']).map((e)=>${Utils._toCamelCase(
             rawKey,
@@ -139,6 +135,7 @@ export class GenerateCalss {
         insertCode = `_data['${rawKey}'] = ${key}.toJson();`;
         break;
       case "Array": {
+        // TODO 存在为 List<int>? 的情况需要处理一下
         if (type.isArrayObject)
           insertCode = `_data['${rawKey}'] = ${key}.map((e)=>e.toJson()).toList();`;
         break;
