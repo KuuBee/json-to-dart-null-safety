@@ -17,10 +17,11 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MenuItem from "@material-ui/core/MenuItem";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { createMuiTheme } from "@material-ui/core/styles";
-import { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useState } from "react";
 import styles from "../styles/widget/appHeader.module.scss";
 import { AppLanguage, languageSource } from "../language";
 import { palette } from "../core/theme";
+import Head from "next/head";
 
 type onCloseCallback = (select?: AppLanguage.Type) => void;
 
@@ -50,6 +51,9 @@ export const AppHeader: FunctionComponent<{
   });
   return (
     <ThemeProvider theme={theme}>
+      <Head>
+        <title>JSON to Dart null safety</title>
+      </Head>
       <AppBar position="static">
         <h1 className={styles.seo}>JSON to Dart null safety</h1>
         <Toolbar>
