@@ -4,16 +4,20 @@ import { PaletteOptions } from "@material-ui/core/styles/createPalette";
 
 export const palette: PaletteOptions = {
   primary: {
-    main: "#556cd6"
+    main: "#3A95DF"
+    // #556cd6
   },
   secondary: {
-    main: "#19857b"
+    main: "#FFE9D4"
+    // #19857b
   },
   error: {
     main: red.A400
+    // red.A400
   },
   background: {
-    default: "#fff"
+    default: "#FAFAFA"
+    // #fff
   }
 };
 // Create a theme instance.

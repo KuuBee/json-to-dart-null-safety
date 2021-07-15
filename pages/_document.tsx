@@ -7,7 +7,7 @@ import Document, {
   DocumentContext
 } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
-import {theme} from "../core/theme";
+import { theme } from "../core/theme";
 import { ServerStyleSheets } from "@material-ui/core/styles";
 import { cache } from "./_app";
 
@@ -40,9 +40,10 @@ export default class MyDocument extends Document {
       <Html lang="zh">
         <Head>
           {/* PWA primary color */}
+          <title>JSON to Dart</title>
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta name="description" content="JSON to dart null safety" />
-          <meta name="keywords" content="JSON,Dart,nullSafety" />
+          <meta name="keywords" content="JSON,Dart,null safety" />
           <meta name="renderer" content="webkit"></meta>
           <link
             rel="stylesheet"

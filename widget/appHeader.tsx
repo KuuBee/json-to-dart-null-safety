@@ -3,7 +3,7 @@
  * @Author: KuuBee
  * @Date: 2021-06-28 16:51:05
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-28 17:14:17
+ * @LastEditTime: 2021-07-15 10:30:47
  */
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -60,7 +60,7 @@ export const AppHeader: FunctionComponent<{
             JSON to Dart{" "}
           </Typography>
           <Typography
-            style={{ color: "#ff5252", fontWeight: "bold", userSelect: "none" }}
+            style={{ color: "#FF946A", fontWeight: "bold", userSelect: "none" }}
             variant="h4"
           >
             null safety

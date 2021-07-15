@@ -16,19 +16,19 @@ import Grid from "@material-ui/core/Grid";
 import { DartOutput } from "../widget/dartOutput";
 import { AppHeader } from "../widget/appHeader";
 import { useMemo } from "react";
+import { Utils } from "../core/utils";
 
 interface InitProp {
   lang?: string;
 }
 
 const Home: NextPage<InitProp> = ({ lang }) => {
-  let _rootClassName: string = "";
+  let _rootClassName: string = "AutoGenerate";
   const [inputValue, setinputValue] = useState<string>("");
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [rootClassName, setRootClassName] = useState<string>("AutoGenerate");
   // 默认语言
   const defaultLanguage = languageSource.filter((item) => item.enName === lang);
   const [language, setLanguage] = useState<AppLanguage.Type>(
@@ -70,7 +70,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   const convert = () => {
     setLoading(true);
     format();
-    setRootClassName(_rootClassName);
+
     if (inputValue.match(/^\[/)) {
       setErrorMsg(languageContent.errorStructureMsg);
       setError(true);
@@ -79,11 +79,16 @@ const Home: NextPage<InitProp> = ({ lang }) => {
     }
     const res = toAst(inputValue);
     if (res.type !== "Object") throw "error type!";
+
     const resCode = new GenerateDart({
       type: "Object",
       children: [
         {
-          key: { type: "Identifier", value: rootClassName, raw: rootClassName },
+          key: {
+            type: "Identifier",
+            value: Utils._toCamelCase(_rootClassName, "defalut"),
+            raw: _rootClassName
+          },
           type: "Property",
           value: res as ObjectNode
         }
@@ -109,7 +114,6 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   };
   const rootClassNameChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     _rootClassName = e.target.value;
-    // setRootClassName(e.target.value);
   };
   // 复制
   const copy = async () => {
@@ -128,9 +132,6 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   };
   return (
     <div>
-      <Head>
-        <title>JSON to Dart</title>
-      </Head>
       <AppHeader language={language} onClose={handleMenuClose}></AppHeader>
       <main className={styles.container}>
         <h2 className={styles.title}>
@@ -155,7 +156,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
               width: "200px"
             }}
             label={languageContent.setRootClassName}
-            defaultValue={rootClassName}
+            defaultValue="AutoGenerate"
             onChange={rootClassNameChange}
           />
           <div style={{ flex: 1 }}></div>
