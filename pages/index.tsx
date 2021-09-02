@@ -23,7 +23,7 @@ interface InitProp {
 }
 
 const Home: NextPage<InitProp> = ({ lang }) => {
-  let _rootClassName: string = "AutoGenerate";
+  const [className, setCalssName] = useState<string>("AutoGenerate");
   const [inputValue, setinputValue] = useState<string>("");
   const [outputVal, setOututVal] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
@@ -86,8 +86,8 @@ const Home: NextPage<InitProp> = ({ lang }) => {
         {
           key: {
             type: "Identifier",
-            value: Utils._toCamelCase(_rootClassName, "defalut"),
-            raw: _rootClassName
+            value: Utils._toCamelCase(className, "defalut"),
+            raw: className
           },
           type: "Property",
           value: res as ObjectNode
@@ -113,7 +113,7 @@ const Home: NextPage<InitProp> = ({ lang }) => {
     }
   };
   const rootClassNameChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    _rootClassName = e.target.value;
+    setCalssName(e.target.value);
   };
   // 复制
   const copy = async () => {
