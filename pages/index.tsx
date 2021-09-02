@@ -55,49 +55,49 @@ const Home: NextPage<InitProp> = ({ lang }) => {
   };
   // 转换Ast
   const toAst = (val: string): parse.ValueNode => {
-    try {
-      const res = JSON.stringify(JSON.parse(val), null, 4);
-      return parse(res, {
-        loc: false
-      });
-    } catch (error) {
-      setErrorMsg(languageContent.convertError);
-      setError(true);
-      throw error;
-    }
+    const res = JSON.stringify(JSON.parse(val), null, 4);
+    return parse(res, {
+      loc: false
+    });
   };
   // 转换
   const convert = () => {
-    setLoading(true);
-    format();
+    try {
+      setLoading(true);
+      format();
 
-    if (inputValue.match(/^\[/)) {
-      setErrorMsg(languageContent.errorStructureMsg);
+      if (inputValue.match(/^\[/)) {
+        setErrorMsg(languageContent.errorStructureMsg);
+        setError(true);
+        setLoading(false);
+        return;
+      }
+      const res = toAst(inputValue);
+      if (res.type !== "Object") throw "error type!";
+
+      const resCode = new GenerateDart({
+        type: "Object",
+        children: [
+          {
+            key: {
+              type: "Identifier",
+              value: Utils._toCamelCase(className, "defalut"),
+              raw: className
+            },
+            type: "Property",
+            value: res as ObjectNode
+          }
+        ]
+      }).getRes();
+      setOututVal(resCode);
+      setLoading(false);
+      setSuccess(true);
+      setShowParse(true);
+    } catch (e) {
+      setErrorMsg(languageContent.convertError);
       setError(true);
       setLoading(false);
-      return;
     }
-    const res = toAst(inputValue);
-    if (res.type !== "Object") throw "error type!";
-
-    const resCode = new GenerateDart({
-      type: "Object",
-      children: [
-        {
-          key: {
-            type: "Identifier",
-            value: Utils._toCamelCase(className, "defalut"),
-            raw: className
-          },
-          type: "Property",
-          value: res as ObjectNode
-        }
-      ]
-    }).getRes();
-    setOututVal(resCode);
-    setLoading(false);
-    setSuccess(true);
-    setShowParse(true);
   };
   // 格式化
   const format = () => {
@@ -109,7 +109,6 @@ const Home: NextPage<InitProp> = ({ lang }) => {
       setErrorMsg(languageContent.wrongJsonFormat);
       setError(true);
       setLoading(false);
-      throw error;
     }
   };
   const rootClassNameChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
