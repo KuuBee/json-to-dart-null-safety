@@ -3,9 +3,15 @@
  * @Author: KuuBee
  * @Date: 2021-06-23 14:31:51
  * @LastEditors: KuuBee
- * @LastEditTime: 2021-06-30 16:28:14
+ * @LastEditTime: 2021-09-02 16:58:42
  */
-import { ArrayNode, ValueNode, LiteralNode, ObjectNode } from "json-to-ast";
+import {
+  ArrayNode,
+  ValueNode,
+  LiteralNode,
+  ObjectNode,
+  ASTNode
+} from "json-to-ast";
 import { Utils } from "./utils";
 
 // AST node 类型
@@ -71,7 +77,36 @@ export class GenerateDartType {
           this.astType = astTypeList[0];
         } else {
           if (!astTypeList.includes("Literal")) this.astType = astTypeList[0];
-          else this.astType = "Literal";
+          else {
+            const isNullable = valList?.some(
+              (item) => item.type === "Literal" && item.value === null
+            );
+            if (isNullable) {
+              const times: {
+                [key in string]: number;
+              } = {};
+              let maxCount = 0;
+              let maxVal: AstType | null = null;
+              valList?.forEach((item) => {
+                if (item.type !== "Literal")
+                  if (times[item.type]) times[item.type] += 1;
+                  else times[item.type] = 1;
+              });
+              for (const key in times) {
+                if (Object.prototype.hasOwnProperty.call(times, key)) {
+                  const element = times[key as AstType];
+                  if (element >= maxCount) {
+                    maxCount = element;
+                    maxVal = key as AstType;
+                  }
+                }
+              }
+              this.astType = maxVal!;
+            } else {
+              // 数组中数据结果不一致
+              this.astType = "Literal";
+            }
+          }
         }
       } else if (
         typeListRes.includes("double") &&
@@ -84,7 +119,6 @@ export class GenerateDartType {
         this.dartType = typeListRes[0];
       }
     }
-    // this.astType = val?.type as AstType;
   }
   val?: ValueNode;
   key: string;

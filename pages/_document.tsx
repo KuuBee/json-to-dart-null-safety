@@ -40,7 +40,6 @@ export default class MyDocument extends Document {
       <Html lang="zh">
         <Head>
           {/* PWA primary color */}
-          <title>JSON to Dart</title>
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta name="description" content="JSON to dart null safety" />
           <meta name="keywords" content="JSON,Dart,null safety" />
