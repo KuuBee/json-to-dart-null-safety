@@ -42,7 +42,7 @@ export default class MyDocument extends Document {
           {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta name="description" content="JSON to dart null safety" />
-          <meta name="keywords" content="JSON,Dart,null safety" />
+          <meta name="keywords" content="JSON,Dart,null safety,json to dart,json to dart null safety" />
           <meta name="renderer" content="webkit"></meta>
           <link
             rel="stylesheet"
