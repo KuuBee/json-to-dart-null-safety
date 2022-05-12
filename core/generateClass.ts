@@ -2,8 +2,8 @@
  * @Descripttion: 生成class
  * @Author: KuuBee
  * @Date: 2021-06-23 14:30:09
- * @LastEditors: KuuBee
- * @LastEditTime: 2021-09-02 16:51:57
+ * @LastEditors: Raphael ARABEYRE
+ * @LastEditTime: 2022-05-012 22:51:22
  */
 import parse, { ObjectNode, ValueNode } from "json-to-ast";
 import { GenerateDartType } from "./generateDartType";
@@ -103,7 +103,7 @@ export class GenerateCalss {
     rawKey: string
   ) {
     let insertCode = `${key} = ${
-      type.nullable ? "null" : `json['${rawKey}']`
+      type.nullable ? "null" : `json['${rawKey}']  as ${type.dartType}`
     };`;
     switch (type.astType) {
       case "Object":
@@ -111,29 +111,29 @@ export class GenerateCalss {
           insertCode = `${key} = ${Utils._toCamelCase(
             key,
             "defalut"
-          )}.fromJson(json['${rawKey}']);`;
+          )}.fromJson(json['${rawKey}'] as Map<String, dynamic>);`;
         else
           insertCode = `${key} = json['${rawKey}'] == null
           ? null
-          : ${Utils._toCamelCase(key, "defalut")}.fromJson(json['${rawKey}']);`;
+          : ${Utils._toCamelCase(key, "defalut")}.fromJson(json['${rawKey}'] as Map<String, dynamic>);`;
         break;
       case "Array":
         if (type.isArrayObject)
           insertCode = `${key} = List.from(json['${rawKey}']${
             type.nullable ? "??[]" : ""
-          }).map((e)=>${Utils._toCamelCase(
+          } as Iterable<dynamic>).map((e)=>${Utils._toCamelCase(
             rawKey,
             "defalut"
-          )}.fromJson(e)).toList();`;
+          )}.fromJson(e as Map<String, dynamic>)).toList();`;
         else {
           // 这里不清楚 List.castFrom 是否会对性能产生影响
           insertCode = `${key} = List.castFrom<dynamic, ${
             type.arrayType
-          }>(json['${rawKey}']${type.nullable ? "??[]" : ""});`;
+          }>(json['${rawKey}']${type.nullable ? "??[]" : ""} as List<dynamic>);`;
         }
         break;
       default:
-        insertCode = `${key} = json['${rawKey}'];`;
+        insertCode = `${key} = json['${rawKey}'] as ${type.dartType};`;
     }
     this.dart = this.dart.replace(
       fromJsonAnnotate,
