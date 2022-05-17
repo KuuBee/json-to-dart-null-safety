@@ -41,8 +41,8 @@ export class GenerateCalss {
   }
 
   Map<String, dynamic> toJson() {
-\u0020\u0020\u0020\u0020final _data = <String, dynamic>{};${toJsonAnnotate}
-\u0020\u0020\u0020\u0020return _data;
+\u0020\u0020\u0020\u0020final data = <String, dynamic>{};${toJsonAnnotate}
+\u0020\u0020\u0020\u0020return data;
   }
 }`;
 
@@ -119,7 +119,7 @@ export class GenerateCalss {
         break;
       case "Array":
         if (type.isArrayObject)
-          insertCode = `${key} = List.from(json['${rawKey}']${
+          insertCode = `${key} = List<dynamic>.from(json['${rawKey}']${
             type.nullable ? "??[]" : ""
           } as Iterable<dynamic>).map((e)=>${Utils._toCamelCase(
             rawKey,
@@ -127,7 +127,7 @@ export class GenerateCalss {
           )}.fromJson(e as Map<String, dynamic>)).toList();`;
         else {
           // 这里不清楚 List.castFrom 是否会对性能产生影响
-          insertCode = `${key} = List.castFrom<dynamic, ${
+          insertCode = `${key} = List<dynamic>.castFrom<dynamic, ${
             type.arrayType
           }>(json['${rawKey}']${type.nullable ? "??[]" : ""} as List<dynamic>);`;
         }
@@ -143,16 +143,16 @@ export class GenerateCalss {
 
   // toJson语句
   private _insertToJson(type: GenerateDartType, key: string, rawKey: string) {
-    let insertCode = `_data['${rawKey}'] = ${key};`;
+    let insertCode = `data['${rawKey}'] = ${key};`;
     switch (type.astType) {
       case "Object":
-        insertCode = `_data['${rawKey}'] = ${key}${
+        insertCode = `data['${rawKey}'] = ${key}${
           type.nullable ? "?" : ""
         }.toJson();`;
         break;
       case "Array": {
         if (type.isArrayObject)
-          insertCode = `_data['${rawKey}'] = ${key}.map((e)=>e.toJson()).toList();`;
+          insertCode = `data['${rawKey}'] = ${key}.map((e)=>e.toJson()).toList();`;
         break;
       }
       default:
