@@ -41,7 +41,7 @@ export class GenerateCalss {
   }
 
   Map<String, dynamic> toJson() {
-\u0020\u0020\u0020\u0020Map<String, dynamic> data = <String, dynamic>{};${toJsonAnnotate}
+\u0020\u0020\u0020\u0020final Map<String, dynamic> data = <String, dynamic>{};${toJsonAnnotate}
 \u0020\u0020\u0020\u0020return data;
   }
 }`;
