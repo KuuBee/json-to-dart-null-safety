@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "name": "小明",
+      "age": 20,
+      "favorite_food": [
+        "苹果",
+        "栗子",
+        "西瓜"
+      ],
+      "marital_status": false,
+      "mate": null,
+      "cars": [],
+      "friends": [
+        {
+          "name": "小红",
+          "age": 22,
+          "favorite_food": [
+            "苹果",
+            "栗子",
+            "西瓜"
+          ],
+          "cars": []
+        },
+        {
+          "name": "小美",
+          "age": 21,
+          "favorite_food": [
+            "苹果",
+            "栗子",
+            "西瓜"
+          ],
+          "cars": []
+        }
+      ],
+      "academic_qualifications": {
+        "education": "junior college",
+        "graduated": true
+      }
+    },
+    {
+      "name": "小水",
+      "age": 18,
+      "favorite_food": [
+        "夕张王甜瓜",
+        "田助黑皮西瓜",
+        "美人姬草莓"
+      ],
+      "marital_status": false,
+      "mate": null,
+      "cars": [
+        "劳斯莱斯银魅",
+        "兰博基尼爱马仕",
+        "法拉力"
+      ],
+      "friends": [],
+      "academic_qualifications": {
+        "education": "undergraduate",
+        "graduated": false
+      }
+    }
+  ],
+  "list": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "status_code": 200
+}

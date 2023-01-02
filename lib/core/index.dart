@@ -1,7 +1,17 @@
+import 'dart:developer';
+
+import 'package:basic_utils/basic_utils.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
+import '../utils/basic_utils_extension.dart';
+import 'field_data.dart';
 
 String generateClass(String name, Map<String, dynamic> data) {
+  // TODO
+  final List<FieldData> fieldDataList = _dependencyCollection();
+
+  name = StringUtilsExt.toPascalCase(name);
+
   classBuilder(ClassBuilder c) {
     constructorBuilder(ConstructorBuilder constructor) {
       final parameterList = <Parameter>[];
@@ -30,7 +40,7 @@ String generateClass(String name, Map<String, dynamic> data) {
       });
       constructor.requiredParameters.add(
         Parameter(
-          (p) {
+              (p) {
             p.type = const Reference('Map<String,dynamic>');
             p.name = 'json';
           },
@@ -43,13 +53,14 @@ String generateClass(String name, Map<String, dynamic> data) {
     }
 
     toJsonMethodBuilder(MethodBuilder m) {
-      m.name = '_${name}ToJson';
+      m.name = 'toJson';
       m.returns = const Reference('Map<String,dynamic>');
       m.lambda = true;
       String mapBody = '';
       data.forEach((key, value) {
         mapBody += '''
-        $key:$key,
+        ${StringUtilsExt.camelCaseToLowerUnderscore(key)}:${StringUtilsExt
+            .toCamelCase(key)},
         ''';
       });
       m.body = Code('<String,dynamic>{'
@@ -68,7 +79,7 @@ String generateClass(String name, Map<String, dynamic> data) {
       String mapBody = '';
       data.forEach((key, value) {
         mapBody += '''
-        $key:json['$key'],
+        ${StringUtilsExt.toCamelCase(key)}:json['$key'],
         ''';
       });
       m.body = Code('$name($mapBody)');
@@ -77,10 +88,12 @@ String generateClass(String name, Map<String, dynamic> data) {
     // 添加class字段
     data.forEach((key, value) {
       fieldBuilder(FieldBuilder f) {
-        f.name = key;
+        f.name = StringUtilsExt.toCamelCase(key);
         f.modifier = FieldModifier.final$;
-        final valIsObj = value is Map || value is List;
-        if (valIsObj) {
+        final valIsMap = value is Map;
+        final valIsList = value is List;
+        if (valIsMap || valIsList) {
+          log("value:${value.runtimeType}");
           f.type = Reference(key);
         } else {
           f.type = Reference(value.runtimeType.toString());
@@ -105,4 +118,11 @@ String generateClass(String name, Map<String, dynamic> data) {
   final emitter = DartEmitter.scoped();
   // return classInst.accept(emitter).toString();
   return DartFormatter().format('${classInst.accept(emitter)}');
+}
+
+// TODO 依赖收集
+// 能走到这里的必须是个List Map
+// 如果是个基础类型的List直接报错
+List<FieldData> _dependencyCollection(List<Map<String, dynamic>> data) {
+  return [];
 }

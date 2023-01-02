@@ -39,6 +39,8 @@ dependencies:
   window_manager: ^0.2.8
   code_builder: ^4.3.0
   dart_style: ^2.2.4
+  desktop_multi_window: ^0.2.0
+  basic_utils: ^5.4.2
 
 dev_dependencies:
   flutter_test:
