@@ -90,18 +90,27 @@ void main() async {
     3,
     4
   ],
+  "data_map": {
+    "key": "键",
+    "value": "值"
+  },
   "status_code": 200
 }""";
 
   void incrementCounter() {
-    final  jsonList = json.decode(jsonStr2);
+    final jsonList = json.decode(jsonStr2);
     final jsonMap = json.decode('{"a":1}');
     log('is List:type ${jsonList.runtimeType.toString()} is ${jsonList is List}');
     log('is Map:type ${jsonMap.runtimeType.toString()} is ${jsonMap is Map}');
     log('is String:type ${'aa'.runtimeType.toString()} is ${'aa' is String}');
     log('is num:type ${123.runtimeType.toString()} is ${123 is num}');
     log('is bool:type ${false.runtimeType.toString()} is ${false is bool}');
-    final codeStr = generateClass('root_class', jsonList);
+    final codeStr = generateClass(
+      'root_class',
+      jsonList is List
+          ? jsonList as List<Map<String, dynamic>>
+          : <Map<String, dynamic>>[jsonList],
+    );
     log(codeStr);
   }
 

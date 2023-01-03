@@ -7,6 +7,7 @@ class FieldData {
   final bool isMapList;
 
   //
+  final String rawName;
   final String name;
   final dynamic value;
 
@@ -18,6 +19,7 @@ class FieldData {
     this.isMapList = false,
     required this.name,
     required this.value,
+    required this.rawName,
   })  : assert((() {
           if (isMap) {
             return isMap != isBaseList && isMap != isMapList;

@@ -66,5 +66,10 @@
     3,
     4
   ],
-  "status_code": 200
+  "data_map": {
+    "key": "键",
+    "value": "值"
+  },
+  "status_code": 200,
+  "is_success": true
 }

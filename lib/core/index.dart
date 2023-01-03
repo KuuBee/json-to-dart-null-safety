@@ -6,41 +6,46 @@ import 'package:dart_style/dart_style.dart';
 import '../utils/basic_utils_extension.dart';
 import 'field_data.dart';
 
-String generateClass(String name, Map<String, dynamic> data) {
-  // TODO
-  final List<FieldData> fieldDataList = _dependencyCollection();
+class TestAA {
+  String toJson() {
+    return '';
+  }
+}
+
+String generateClass(String name, List<Map<String, dynamic>> data) {
+  final List<FieldData> fieldDataset = _dependencyCollection(data);
 
   name = StringUtilsExt.toPascalCase(name);
 
   classBuilder(ClassBuilder c) {
     constructorBuilder(ConstructorBuilder constructor) {
       final parameterList = <Parameter>[];
-      data.forEach((key, value) {
+      for (var field in fieldDataset) {
         final p = Parameter((p) {
-          p.name = key;
+          p.name = field.name;
           p.toThis = true;
           p.named = true;
           p.required = true;
         });
         parameterList.add(p);
-      });
+      }
       constructor.optionalParameters.addAll(parameterList);
     }
 
     fromJsonConstructorBuilder(ConstructorBuilder constructor) {
       final parameterList = <Parameter>[];
-      data.forEach((key, value) {
+      for (var field in fieldDataset) {
         final p = Parameter((p) {
-          p.name = key;
+          p.name = field.name;
           p.toThis = true;
           p.named = true;
           p.required = true;
         });
         parameterList.add(p);
-      });
+      }
       constructor.requiredParameters.add(
         Parameter(
-              (p) {
+          (p) {
             p.type = const Reference('Map<String,dynamic>');
             p.name = 'json';
           },
@@ -57,17 +62,26 @@ String generateClass(String name, Map<String, dynamic> data) {
       m.returns = const Reference('Map<String,dynamic>');
       m.lambda = true;
       String mapBody = '';
-      data.forEach((key, value) {
+      for (var field in fieldDataset) {
+        String valueToJson = '';
+        if (field.isMap) {
+          valueToJson = '${field.type}.toJson()';
+        } else if (field.isMapList) {
+          valueToJson =
+              '${field.name}.map((e) => e.toJson()).toList()';
+        } else {
+          valueToJson = field.name;
+        }
         mapBody += '''
-        ${StringUtilsExt.camelCaseToLowerUnderscore(key)}:${StringUtilsExt
-            .toCamelCase(key)},
+        ${StringUtilsExt.camelCaseToLowerUnderscore(field.name)}:$valueToJson,
         ''';
-      });
+      }
       m.body = Code('<String,dynamic>{'
           '$mapBody'
           '}');
     }
 
+    // TODO 完善转换
     fromJsonMethodBuilder(MethodBuilder m) {
       m.lambda = true;
       m.name = '_${name}FromJson';
@@ -77,31 +91,33 @@ String generateClass(String name, Map<String, dynamic> data) {
         p.type = const Reference('Map<String,dynamic>');
       }));
       String mapBody = '';
-      data.forEach((key, value) {
+      for (var field in fieldDataset) {
         mapBody += '''
-        ${StringUtilsExt.toCamelCase(key)}:json['$key'],
+        ${field.name}:json['${field.rawName}'],
         ''';
-      });
+      }
       m.body = Code('$name($mapBody)');
     }
 
     // 添加class字段
-    data.forEach((key, value) {
+    for (var field in fieldDataset) {
       fieldBuilder(FieldBuilder f) {
-        f.name = StringUtilsExt.toCamelCase(key);
+        f.name = field.name;
         f.modifier = FieldModifier.final$;
-        final valIsMap = value is Map;
-        final valIsList = value is List;
+        final valIsMap = field.value is Map;
+        final valIsList = field.value is List;
         if (valIsMap || valIsList) {
-          log("value:${value.runtimeType}");
-          f.type = Reference(key);
+          log('key:${field.name}');
+          log('value:${field.value}');
+          log('type:${field.type}');
+          f.type = Reference(field.type);
         } else {
-          f.type = Reference(value.runtimeType.toString());
+          f.type = Reference(field.value.runtimeType.toString());
         }
       }
 
       c.fields.add(Field(fieldBuilder));
-    });
+    }
     // 添加class类名
     c.name = name;
     // 添加默认构造函数
@@ -120,9 +136,66 @@ String generateClass(String name, Map<String, dynamic> data) {
   return DartFormatter().format('${classInst.accept(emitter)}');
 }
 
-// TODO 依赖收集
 // 能走到这里的必须是个List Map
 // 如果是个基础类型的List直接报错
-List<FieldData> _dependencyCollection(List<Map<String, dynamic>> data) {
-  return [];
+List<FieldData> _dependencyCollection(List<Map<String, dynamic>> dataset) {
+  final fieldDataset = <FieldData>[];
+  final mapDepend = <String, List<dynamic>>{};
+  for (var data in dataset) {
+    data.forEach((key, value) {
+      mapDepend[key] ??= [];
+      mapDepend[key]!.add(value);
+    });
+  }
+  mapDepend.forEach((key, value) {
+    final deduplicationValueList = value.toSet().toList();
+    final withoutNullValueList =
+        deduplicationValueList.where((element) => element != null).toList();
+    final isMap = withoutNullValueList.isEmpty
+        ? false
+        : deduplicationValueList.first is Map;
+    log('withoutNullValueList:$withoutNullValueList');
+    final isBaseList = withoutNullValueList.every((element) {
+      if (element is List) {
+        return element.every((element) => !(element is Map || element is List));
+      }
+      return false;
+    });
+    final isMapList = withoutNullValueList.every((element) {
+      if (element is List) {
+        element = element.where((element) => element != null).toList();
+        if (element.isNotEmpty) {
+          return element.first is Map;
+        }
+      }
+      return false;
+    });
+
+    String type;
+    if (withoutNullValueList.isEmpty) {
+      type = 'Null';
+    } else if (isMap) {
+      type = StringUtilsExt.toPascalCase(key);
+    } else if (isMapList) {
+      type = 'List<${StringUtilsExt.toPascalCase(key)}>';
+    } else if (isBaseList) {
+      type = 'List<${withoutNullValueList.first.first.runtimeType}>';
+    } else {
+      type = withoutNullValueList.first.runtimeType.toString();
+    }
+    fieldDataset.add(
+      FieldData(
+        mayBeNull: deduplicationValueList.length > 1 &&
+            deduplicationValueList.contains(null),
+        type: type,
+        name: StringUtilsExt.toCamelCase(key),
+        value: value,
+        rawName: key,
+        isMap: isMap,
+        isMapList: isMapList,
+        isBaseList: isBaseList,
+      ),
+    );
+  });
+  return fieldDataset;
 }
