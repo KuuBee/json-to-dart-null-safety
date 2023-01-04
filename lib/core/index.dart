@@ -14,8 +14,8 @@ class TestAA {
 
 String generateClass(String name, List<Map<String, dynamic>> data) {
   final List<FieldData> fieldDataset = _dependencyCollection(data);
-
-  name = StringUtilsExt.toPascalCase(name);
+  final className = StringUtilsExt.toPascalCase(name);
+  name = StringUtilsExt.toCamelCase(name);
 
   classBuilder(ClassBuilder c) {
     constructorBuilder(ConstructorBuilder constructor) {
@@ -33,15 +33,11 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
     }
 
     fromJsonConstructorBuilder(ConstructorBuilder constructor) {
-      final parameterList = <Parameter>[];
+      String mapBody = '';
       for (var field in fieldDataset) {
-        final p = Parameter((p) {
-          p.name = field.name;
-          p.toThis = true;
-          p.named = true;
-          p.required = true;
-        });
-        parameterList.add(p);
+        mapBody += '''
+        ${field.name}:${field.fromJsonCode},
+        ''';
       }
       constructor.requiredParameters.add(
         Parameter(
@@ -53,7 +49,7 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
       );
       constructor.name = 'fromJson';
       constructor.lambda = true;
-      constructor.body = Code('_${name}FromJson(json)');
+      constructor.body = Code('$className($mapBody)');
       constructor.factory = true;
     }
 
@@ -63,17 +59,8 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
       m.lambda = true;
       String mapBody = '';
       for (var field in fieldDataset) {
-        String valueToJson = '';
-        if (field.isMap) {
-          valueToJson = '${field.type}.toJson()';
-        } else if (field.isMapList) {
-          valueToJson =
-              '${field.name}.map((e) => e.toJson()).toList()';
-        } else {
-          valueToJson = field.name;
-        }
         mapBody += '''
-        ${StringUtilsExt.camelCaseToLowerUnderscore(field.name)}:$valueToJson,
+        "${StringUtilsExt.camelCaseToLowerUnderscore(field.name)}":${field.toJsonCode},
         ''';
       }
       m.body = Code('<String,dynamic>{'
@@ -81,11 +68,10 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
           '}');
     }
 
-    // TODO 完善转换
     fromJsonMethodBuilder(MethodBuilder m) {
       m.lambda = true;
       m.name = '_${name}FromJson';
-      m.returns = Reference(name);
+      m.returns = Reference(className);
       m.requiredParameters.add(Parameter((p) {
         p.name = 'json';
         p.type = const Reference('Map<String,dynamic>');
@@ -93,10 +79,10 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
       String mapBody = '';
       for (var field in fieldDataset) {
         mapBody += '''
-        ${field.name}:json['${field.rawName}'],
+        ${field.name}:${field.fromJsonCode},
         ''';
       }
-      m.body = Code('$name($mapBody)');
+      m.body = Code('$className($mapBody)');
     }
 
     // 添加class字段
@@ -107,9 +93,6 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
         final valIsMap = field.value is Map;
         final valIsList = field.value is List;
         if (valIsMap || valIsList) {
-          log('key:${field.name}');
-          log('value:${field.value}');
-          log('type:${field.type}');
           f.type = Reference(field.type);
         } else {
           f.type = Reference(field.value.runtimeType.toString());
@@ -119,7 +102,7 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
       c.fields.add(Field(fieldBuilder));
     }
     // 添加class类名
-    c.name = name;
+    c.name = className;
     // 添加默认构造函数
     c.constructors.add(Constructor(constructorBuilder));
     // 添加fromJson工厂函数（通过lambda表达式指向fromJson函数）
@@ -127,7 +110,7 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
     // 添加toJson函数
     c.methods.add(Method(toJsonMethodBuilder));
     // 添加fromJson函数
-    c.methods.add(Method(fromJsonMethodBuilder));
+    // c.methods.add(Method(fromJsonMethodBuilder));
   }
 
   final classInst = Class(classBuilder);
@@ -148,13 +131,18 @@ List<FieldData> _dependencyCollection(List<Map<String, dynamic>> dataset) {
     });
   }
   mapDepend.forEach((key, value) {
+    // 数据去重
     final deduplicationValueList = value.toSet().toList();
+    // 数据去空
     final withoutNullValueList =
         deduplicationValueList.where((element) => element != null).toList();
+    // 如果去空数据不为空，那么取第一个值判断是否为Map
+    // 这里对于不为完整数据结构的值会产生错误的结果
+    // 如：[1,{"a":1}]；这样的数据
+    // 所以这里想要正确的产出必须要求数据结构的一致性
     final isMap = withoutNullValueList.isEmpty
         ? false
         : deduplicationValueList.first is Map;
-    log('withoutNullValueList:$withoutNullValueList');
     final isBaseList = withoutNullValueList.every((element) {
       if (element is List) {
         return element.every((element) => !(element is Map || element is List));
@@ -171,29 +159,50 @@ List<FieldData> _dependencyCollection(List<Map<String, dynamic>> dataset) {
       return false;
     });
 
+    final name = StringUtilsExt.toCamelCase(key);
+    // 判断type
     String type;
+    String toJsonCode;
+    String fromJsonCode;
     if (withoutNullValueList.isEmpty) {
+      toJsonCode = name;
+      fromJsonCode = 'json[$name]';
       type = 'Null';
     } else if (isMap) {
       type = StringUtilsExt.toPascalCase(key);
+      toJsonCode = '$type().toJson()';
+      fromJsonCode = '${StringUtilsExt.toPascalCase(key)}'
+          '.fromJson(json["$key"])';
     } else if (isMapList) {
       type = 'List<${StringUtilsExt.toPascalCase(key)}>';
+      toJsonCode = '$name.map((e) => e.toJson()).toList()';
+      //List.from(json['data']).map((e) => Data.fromJson(e)).toList()
+      fromJsonCode = 'List.from(json["$key"])'
+          '.map((e) => ${StringUtilsExt.toPascalCase(name)}.fromJson(e))'
+          '.toList()';
     } else if (isBaseList) {
       type = 'List<${withoutNullValueList.first.first.runtimeType}>';
+      toJsonCode = name;
+      fromJsonCode = 'json["$key"]';
     } else {
       type = withoutNullValueList.first.runtimeType.toString();
+      toJsonCode = name;
+      fromJsonCode = 'json["$key"]';
     }
+    // TODO map list和map的依赖收集还有点问题,List<int?>这种类型null也需要处理
     fieldDataset.add(
       FieldData(
         mayBeNull: deduplicationValueList.length > 1 &&
             deduplicationValueList.contains(null),
         type: type,
-        name: StringUtilsExt.toCamelCase(key),
+        name: name,
         value: value,
         rawName: key,
         isMap: isMap,
         isMapList: isMapList,
         isBaseList: isBaseList,
+        toJsonCode: toJsonCode,
+        fromJsonCode: fromJsonCode,
       ),
     );
   });

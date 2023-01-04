@@ -1,14 +1,25 @@
 class FieldData {
   // 类型相关字段
+  // 是否可能为空
   final bool mayBeNull;
+  // 具体类型
   final String type;
+  // 是否为map类型，后续需要添加其他class
   final bool isMap;
+  // 是否为基础类型列表如：[1,2,3,4,5]
   final bool isBaseList;
+  // 是否为map列表如：[{"a":1},{"a":2}]
   final bool isMapList;
+  // toJson函数中的代码
+  final String toJsonCode;
+  // fromJson函数中的代码
+  final String fromJsonCode;
 
-  //
+  // 原始key值的数据
   final String rawName;
+  // 小驼峰后的key值数据
   final String name;
+  // 值
   final dynamic value;
 
   FieldData({
@@ -20,6 +31,8 @@ class FieldData {
     required this.name,
     required this.value,
     required this.rawName,
+    required this.fromJsonCode,
+    required this.toJsonCode,
   })  : assert((() {
           if (isMap) {
             return isMap != isBaseList && isMap != isMapList;
