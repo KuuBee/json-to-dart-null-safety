@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:json_to_dart/core/index.dart';
+import 'package:json_to_dart/utils/Error.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -101,27 +102,59 @@ void main() async {
   const jsonStr3 = """[
   {
     "list": [1,2,3,4],
-    "list2": [1,2,3,4]
+    "list2": [1,2,3,4],
+    "list3": ["1","2"],
+    "list4": [1,null,2,3],
+    "list5": [1,null,2,3],
+    "list6": [
+      {"a": 1},
+      null
+    ],
+    "list7": [
+      {"b": 1},
+      null
+    ],
+    "list8": {
+      "c": 1
+    }
   },
   {
     "list": null,
-    "list2": null
+    "list2": null,
+    "list3": ["1","2"],
+    "list4": [1,4,2,3],
+    "list5": null,
+    "list6": [
+      {"a": 1},
+      {"a": 2}
+    ],
+    "list7": null,
+    "list8": null
   }
 ]""";
+  const jsonStr4 = "[1,2,3]";
 
-  void incrementCounter() {
-    final jsonList = json.decode(jsonStr3);
+  void incrementCounter(String jsonStr) {
+    final dynamic jsonData = json.decode(jsonStr);
+    late final List<Map<String, dynamic>> jsonList;
+    if (jsonData is List) {
+      if (jsonData.every((element) => element is Map<String, dynamic>)) {
+        jsonList = jsonData.cast<Map<String, dynamic>>();
+      } else {
+        // TODO 全局错误捕获
+        throw JsonToDartUnsupportedObjectError(jsonStr);
+      }
+    } else {
+      jsonList = [jsonData];
+    }
     final codeStr = generateClass(
       'root_class',
-      jsonList is List
-          // type 有问题
-          ? jsonList as List<Map<String, dynamic>>
-          : <Map<String, dynamic>>[jsonList],
+      jsonList,
     );
     log(codeStr);
   }
 
-  incrementCounter();
+  incrementCounter(jsonStr3);
 
   // runApp(const MyApp());
 }

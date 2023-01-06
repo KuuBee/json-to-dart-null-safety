@@ -93,6 +93,7 @@ String generateClass(String name, List<Map<String, dynamic>> data) {
         final valIsMap = field.value is Map;
         final valIsList = field.value is List;
         if (valIsMap || valIsList) {
+          // TODO 递归计算map
           f.type = Reference(field.type);
         } else {
           f.type = Reference(field.value.runtimeType.toString());
@@ -136,6 +137,8 @@ List<FieldData> _dependencyCollection(List<Map<String, dynamic>> dataset) {
     // 数据去空
     final withoutNullValueList =
         deduplicationValueList.where((element) => element != null).toList();
+    final mayBeNull = deduplicationValueList.length > 1 &&
+        deduplicationValueList.contains(null);
     // 如果去空数据不为空，那么取第一个值判断是否为Map
     // 这里对于不为完整数据结构的值会产生错误的结果
     // 如：[1,{"a":1}]；这样的数据
@@ -160,47 +163,117 @@ List<FieldData> _dependencyCollection(List<Map<String, dynamic>> dataset) {
     });
 
     final name = StringUtilsExt.toCamelCase(key);
+    // 处理List<int?>这种类型
+    bool mayBeListItemNull = false;
+    if (isBaseList || isMapList) {
+      final flatList = [for (var item in withoutNullValueList) ...item];
+      mayBeListItemNull = !flatList.every((element) => element != null);
+    }
     // 判断type
     String type;
     String toJsonCode;
     String fromJsonCode;
-    if (withoutNullValueList.isEmpty) {
-      toJsonCode = name;
-      fromJsonCode = 'json[$name]';
-      type = 'Null';
-    } else if (isMap) {
-      type = StringUtilsExt.toPascalCase(key);
-      toJsonCode = '$type().toJson()';
-      fromJsonCode = '${StringUtilsExt.toPascalCase(key)}'
-          '.fromJson(json["$key"])';
-    } else if (isMapList) {
-      type = 'List<${StringUtilsExt.toPascalCase(key)}>';
-      toJsonCode = '$name.map((e) => e.toJson()).toList()';
-      //List.from(json['data']).map((e) => Data.fromJson(e)).toList()
-      fromJsonCode = 'List.from(json["$key"])'
-          '.map((e) => ${StringUtilsExt.toPascalCase(name)}.fromJson(e))'
-          '.toList()';
-    } else if (isBaseList) {
-      type = 'List<${withoutNullValueList.first.first.runtimeType}>';
-      toJsonCode = name;
-      fromJsonCode = 'json["$key"]';
-    } else {
-      type = withoutNullValueList.first.runtimeType.toString();
-      toJsonCode = name;
-      fromJsonCode = 'json["$key"]';
+    JsonType jsonType = JsonType.base;
+    final String mayBeNullMark = mayBeNull ? '?' : '';
+    final String mayBeListItemNullMark = mayBeListItemNull ? '?' : '';
+    if (isMap) jsonType = JsonType.map;
+    if (isMapList) jsonType = JsonType.mapList;
+    if (isBaseList) jsonType = JsonType.baseList;
+    switch (jsonType) {
+      case JsonType.map:
+        {
+          type = '${StringUtilsExt.toPascalCase(key)}$mayBeNullMark';
+          toJsonCode = '$key$mayBeNullMark.toJson()';
+          fromJsonCode = '${StringUtilsExt.toPascalCase(key)}'
+              '.fromJson(json["$key"])';
+          break;
+        }
+      case JsonType.mapList:
+        {
+          // 组合type
+          type = 'List<${StringUtilsExt.toPascalCase(key)}'
+              // 子项是否可能为null
+              '$mayBeListItemNullMark>'
+              // 当前list是否可能为null
+              '$mayBeNullMark';
+          toJsonCode = '$name'
+              '$mayBeNullMark'
+              '.map((e) => e'
+              '$mayBeListItemNullMark'
+              '.toJson()).toList()';
+          fromJsonCode = 'List.from(json["$key"])'
+              '.map((e) => ${StringUtilsExt.toPascalCase(name)}.fromJson(e))'
+              '.toList()';
+          break;
+        }
+      case JsonType.baseList:
+        {
+          type = 'List<${withoutNullValueList.first.first.runtimeType}'
+              // 子项是否可能为null
+              '$mayBeListItemNullMark>'
+              // 当前list是否可能为null
+              '$mayBeNullMark';
+          toJsonCode = name;
+          fromJsonCode = 'json["$key"]';
+          break;
+        }
+      case JsonType.base:
+        {
+          if (withoutNullValueList.isEmpty) {
+            toJsonCode = name;
+            fromJsonCode = 'json[$name]';
+            type = 'Null';
+          } else {
+            type = '${withoutNullValueList.first.runtimeType}$mayBeNullMark';
+            toJsonCode = name;
+            fromJsonCode = 'json["$key"]';
+          }
+          break;
+        }
     }
-    // TODO map list和map的依赖收集还有点问题,List<int?>这种类型null也需要处理
+
+    // if (withoutNullValueList.isEmpty) {
+    //   toJsonCode = name;
+    //   fromJsonCode = 'json[$name]';
+    //   type = 'Null';
+    // } else if (isMap) {
+    //   type = StringUtilsExt.toPascalCase(key) + mayBeNull ? '?' : '';
+    //   toJsonCode = '$type().toJson()';
+    //   fromJsonCode = '${StringUtilsExt.toPascalCase(key)}'
+    //       '.fromJson(json["$key"])';
+    // } else if (isMapList) {
+    //   // 组合type
+    //   type = 'List<${StringUtilsExt.toPascalCase(key)}'
+    //       // 子项是否可能为null
+    //       '${mayBeListItemNull ? '?' : ''}>'
+    //       // 当前list是否可能为null
+    //       '${mayBeNull ? '?' : ''}';
+    //   toJsonCode = '$name.map((e) => e.toJson()).toList()';
+    //   fromJsonCode = 'List.from(json["$key"])'
+    //       '.map((e) => ${StringUtilsExt.toPascalCase(name)}.fromJson(e))'
+    //       '.toList()';
+    // } else if (isBaseList) {
+    //   type = 'List<${withoutNullValueList.first.first.runtimeType}'
+    //       // 子项是否可能为null
+    //       '${mayBeListItemNull ? '?' : ''}>'
+    //       // 当前list是否可能为null
+    //       '${mayBeNull ? '?' : ''}';
+    //   toJsonCode = name;
+    //   fromJsonCode = 'json["$key"]';
+    // } else {
+    //   type = '${withoutNullValueList.first.runtimeType}${mayBeNull ? '?' : ''}';
+    //   toJsonCode = name;
+    //   fromJsonCode = 'json["$key"]';
+    // }
     fieldDataset.add(
       FieldData(
-        mayBeNull: deduplicationValueList.length > 1 &&
-            deduplicationValueList.contains(null),
+        mayBeNull: mayBeNull,
+        mayBeListItemNull: mayBeListItemNull,
         type: type,
         name: name,
         value: value,
         rawName: key,
-        isMap: isMap,
-        isMapList: isMapList,
-        isBaseList: isBaseList,
+        jsonType: jsonType,
         toJsonCode: toJsonCode,
         fromJsonCode: fromJsonCode,
       ),

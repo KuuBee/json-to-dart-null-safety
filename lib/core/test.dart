@@ -1,52 +1,68 @@
 class RootClass {
   RootClass({
-    required this.data,
     required this.list,
     required this.list2,
-    required this.dataMap,
-    required this.statusCode,
-    required this.isSuccess,
+    required this.list3,
+    required this.list4,
+    required this.list5,
+    required this.list6,
+    required this.list7,
+    required this.list8,
   });
 
   factory RootClass.fromJson(Map<String, dynamic> json) => RootClass(
-        data: List.from(json["data"]).map((e) => Data.fromJson(e)).toList(),
         list: json["list"],
         list2: json["list2"],
-        dataMap: DataMap.fromJson(json["data_map"]),
-        statusCode: json["status_code"],
-        isSuccess: json["is_success"],
+        list3: json["list3"],
+        list4: json["list4"],
+        list5: json["list5"],
+        list6: List.from(json["list6"]).map((e) => List6.fromJson(e)).toList(),
+        list7: List.from(json["list7"]).map((e) => List7.fromJson(e)).toList(),
+        list8: List8.fromJson(json["list8"]),
       );
 
-  final List<Data> data;
+  final List<int>? list;
 
-  final List<int> list;
+  final List<int>? list2;
 
-  final List<int> list2;
+  final List<String> list3;
 
-  final DataMap dataMap;
+  final List<int?> list4;
 
-  final int statusCode;
+  final List<int?>? list5;
 
-  final bool isSuccess;
+  final List<List6?> list6;
+
+  final List<List7?>? list7;
+
+  final List8? list8;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        "data": data.map((e) => e.toJson()).toList(),
         "list": list,
         "list_2": list2,
-        "data_map": DataMap().toJson(),
-        "status_code": statusCode,
-        "is_success": isSuccess,
+        "list_3": list3,
+        "list_4": list4,
+        "list_5": list5,
+        "list_6": list6.map((e) => e?.toJson()).toList(),
+        "list_7": list7?.map((e) => e?.toJson()).toList(),
+        "list_8": list8?.toJson(),
       };
 }
 
-class Data {
-  Data();
-  factory Data.fromJson(Map<String, dynamic> e) => Data();
+class List6 {
+  List6();
+  factory List6.fromJson(Map<String, dynamic> e) => List6();
   String toJson() => '';
 }
 
-class DataMap {
-  DataMap();
-  factory DataMap.fromJson(Map<String, dynamic> e) => DataMap();
+class List7 {
+  List7();
+  factory List7.fromJson(Map<String, dynamic> e) => List7();
+  String toJson() => '';
+}
+
+class List8 {
+  List8();
+  factory List8.fromJson(Map<String, dynamic> e) => List8();
   String toJson() => '';
 }

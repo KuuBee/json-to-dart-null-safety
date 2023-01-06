@@ -1,10 +1,33 @@
 [
   {
     "list": [1,2,3,4],
-    "list2": [1,2,3,4]
+    "list2": [1,2,3,4],
+    "list3": ["1","2"],
+    "list4": [1,null,2,3],
+    "list5": [1,null,2,3],
+    "list6": [
+      {"a": 1},
+      null
+    ],
+    "list7": [
+      {"b": 1},
+      null
+    ],
+    "list8": {
+      "c": 1
+    }
   },
   {
     "list": null,
-    "list2": null
+    "list2": null,
+    "list3": ["1","2"],
+    "list4": [1,4,2,3],
+    "list5": null,
+    "list6": [
+      {"a": 1},
+      {"a": 2}
+    ],
+    "list7": null,
+    "list8": null
   }
 ]
