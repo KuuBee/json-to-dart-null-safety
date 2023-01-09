@@ -41,6 +41,7 @@ dependencies:
   dart_style: ^2.2.4
   desktop_multi_window: ^0.2.0
   basic_utils: ^5.4.2
+  context_menus: ^1.0.2
 
 dev_dependencies:
   flutter_test:
