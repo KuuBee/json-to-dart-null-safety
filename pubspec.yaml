@@ -42,6 +42,7 @@ dependencies:
   desktop_multi_window: ^0.2.0
   basic_utils: ^5.4.2
   context_menus: ^1.0.2
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:
