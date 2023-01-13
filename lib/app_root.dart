@@ -20,6 +20,12 @@ class _AppRootState extends State<AppRoot> {
         title: 'Json to Dart',
         theme: ThemeData(
           primarySwatch: Colors.lightBlue,
+          textTheme: const TextTheme(
+            bodyText1: TextStyle(
+              fontSize: 16,
+              color: Color(0xff222222),
+            ),
+          ),
         ),
         home: ContextMenuOverlay(
           child: Selector<AppProvider, MouseCursor>(
@@ -30,7 +36,9 @@ class _AppRootState extends State<AppRoot> {
                 child: child,
               );
             },
-            child: const HomePage(),
+            child: const SafeArea(
+              child: HomePage(),
+            ),
           ),
         ),
       ),

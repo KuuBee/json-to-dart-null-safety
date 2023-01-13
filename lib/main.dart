@@ -10,6 +10,55 @@ import 'package:window_manager/window_manager.dart';
 import 'app_root.dart';
 
 void main() async {
+  const pattern = r''
+      // 主版本号
+      r'(?<major>\d+)'
+      // 子版本号
+      r'\.(?<minor>\d+)?'
+      // 修正号
+      r'\.?(?<revision>\d+)?'
+      // 第三个点后的版本号
+      r'(?:\.?(?<dotBuildNumber>\d+))?'
+      // 处理这种形式的版本号 6.5.40-Release.9059101
+      r'(?:.*?release\.(?<releaseBuildNumber>\d+))?'
+      // 括号版本号/编译版本号
+      r'(?<other>.*?(?:\((?<bracketsVersion>\d+)\))|(?<buildNumber>\.\d+))?';
+  final regExp = RegExp(
+    pattern,
+    caseSensitive: false,
+  );
+  const test1 = '1.1';
+  const test0 = '1';
+  const test2 = '2.2.2';
+  const test3 = '3.3.3 (1223)';
+  const test4 = '4.4.4.1441';
+  // ---
+  const test5 = '10.01.03C';
+  const test6 = '6.3.19 Beta';
+  const test7 = '1.8.7.5(N6)';
+  const test8 = 'v10.26';
+  const test9 = '9.10.00N';
+  const test10 = '5.11.12 (8425)';
+  const test11 = '6.5.40-Release.9059101';
+  const test12 = '2022 V22.7.0.1';
+  final regExpMatch = regExp.firstMatch(test12);
+  if (regExpMatch != null) {
+    final major = regExpMatch.namedGroup('major');
+    final minor = regExpMatch.namedGroup('minor');
+    final revision = regExpMatch.namedGroup('revision');
+    final dotBuildNumber = regExpMatch.namedGroup('dotBuildNumber');
+    final releaseBuildNumber = regExpMatch.namedGroup('releaseBuildNumber');
+    final bracketsVersion = regExpMatch.namedGroup('bracketsVersion');
+    final buildNumber = regExpMatch.namedGroup('buildNumber');
+    log('major:$major,num:${int.tryParse(major ?? '')}');
+    log('minor:$minor,num:${int.tryParse(minor ?? '')}');
+    log('revision:$revision,num:${int.tryParse(revision ?? '')}');
+    log('dotBuildNumber:$dotBuildNumber,num:${int.tryParse(dotBuildNumber ?? '')}');
+    log('releaseBuildNumber:$releaseBuildNumber,num:${int.tryParse(releaseBuildNumber ?? '')}');
+    log('bracketsVersion:$bracketsVersion,num:${int.tryParse(bracketsVersion ?? '')}');
+    log('buildNumber:$buildNumber,num:${int.tryParse(buildNumber ?? '')}');
+  }
+  return;
   WidgetsFlutterBinding.ensureInitialized();
   // 必须加上这一行。
   await windowManager.ensureInitialized();
