@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  desktop_drop
   desktop_multi_window
   screen_retriever
   url_launcher_linux

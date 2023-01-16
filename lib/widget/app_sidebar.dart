@@ -1,12 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:context_menus/context_menus.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../provider/app_provider.dart';
+import 'sidebar_workspace.dart';
 
 const borderWidth = 5.0;
 const baseMaxWidth = 300.0;
-const baseMinWidth = 100.0;
+const baseMinWidth = 120.0;
 const maxWidth = baseMaxWidth - borderWidth;
 const minWidth = baseMinWidth - borderWidth;
 
@@ -120,9 +124,11 @@ class AppSidebar extends StatefulWidget {
 
 class _AppSidebarState extends State<AppSidebar> {
   double sidebarWidth = minWidth;
+
   @override
   Widget build(BuildContext context) {
     return ContextMenuRegion(
+      enableLongPress: false,
       contextMenu: SidebarContextMenu(
         children: [
           SidebarContextMenuItem('1上传文件'),
@@ -138,17 +144,11 @@ class _AppSidebarState extends State<AppSidebar> {
           Container(
             width: sidebarWidth,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.surface,
             ),
             child: SafeArea(
-              child: Column(
-                children: [
-                  ExpansionTile(title: Text('title'), children: [
-                    Text('1'),
-                    Text('2'),
-                    Text('3'),
-                  ]),
-                ],
+              child: ListView(
+                children: const [SidebarWorkspace()],
               ),
             ),
           ),
