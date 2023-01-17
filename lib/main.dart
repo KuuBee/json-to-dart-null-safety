@@ -159,7 +159,7 @@ desktopInit() async {
   // 必须加上这一行。
   await windowManager.ensureInitialized();
   WindowOptions windowOptions = const WindowOptions(
-    size: Size(800, 600),
+    size: Size(1000, 800),
     center: true,
     backgroundColor: Colors.white,
     skipTaskbar: false,

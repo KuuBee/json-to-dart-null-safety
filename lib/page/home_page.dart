@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
       ),
       sidebar: Sidebar(
           minWidth: 200,
+          dragClosed: false,
           top: const MacosListTile(
             title: Text('Json to Dart'),
             subtitle: Text('null safety'),
@@ -80,6 +81,7 @@ class _HomePageState extends State<HomePage> {
               ],
             );
           }),
+      child: const AppContent(),
       // appBar: AppBar(),
       // body: Row(
       //   children: const [
