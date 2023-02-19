@@ -1,11 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
 
+import '../utils/app_platform.dart';
 import '../widget/app_content.dart';
 import '../widget/app_sidebar.dart';
+import '../widget/macos_title_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,26 +17,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int pageIndex = 0;
+
+  double get topOffset {
+    if (AppPlatform.isWindows) {
+      return 0;
+    } else if (AppPlatform.isWeb) {
+      return 10.0;
+    } else {
+      return 51.0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MacosWindow(
-      endSidebar: Sidebar(
-        startWidth: 200,
-        minWidth: 200,
-        maxWidth: 300,
-        shownByDefault: false,
-        builder: (context, scrollController) {
-          return const Center(
-            child: Text('End Sidebar'),
-          );
-        },
-      ),
       sidebar: Sidebar(
+          topOffset: topOffset,
           minWidth: 200,
           dragClosed: false,
-          top: const MacosListTile(
-            title: Text('Json to Dart'),
-            subtitle: Text('null safety'),
+          top: Column(
+            children: [
+              if (AppPlatform.isWindows) const MacosTitleBar(),
+              const MacosListTile(
+                title: Text('Json to Dart'),
+                subtitle: Text('null safety'),
+              )
+            ],
           ),
           bottom: const MacosListTile(
             leading: MacosIcon(CupertinoIcons.profile_circled),
