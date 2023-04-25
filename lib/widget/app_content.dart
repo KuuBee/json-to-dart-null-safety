@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_json_view/flutter_json_view.dart';
 import 'package:json_to_dart/core/index.dart';
 import 'package:json_to_dart/utils/iconfont.dart';
-import 'package:macos_ui/macos_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'app_json_view.dart';
@@ -81,67 +80,6 @@ class _AppContentState extends State<AppContent> {
 
   @override
   Widget build(BuildContext context) {
-    return MacosScaffold(
-      toolBar: const ToolBar(
-        title: Text('test.json'),
-      ),
-      children: [
-        ResizablePane(
-          minWidth: 180,
-          startWidth: 200,
-          windowBreakpoint: 0,
-          resizableSide: ResizableSide.right,
-          builder: (context, controller) {
-            return SingleChildScrollView(
-              controller: controller,
-              child: AppJsonViewer(
-                jsonObj: jsonObj,
-              ),
-            );
-          },
-        ),
-        ContentArea(
-          builder: (context, _) {
-            return SingleChildScrollView(
-              child: Center(
-                child: Text(dartStr),
-              ),
-            );
-          },
-        ),
-        ResizablePane(
-          minWidth: 180,
-          startWidth: 180,
-          windowBreakpoint: 0,
-          resizableSide: ResizableSide.left,
-          builder: (context, _) {
-            return const Center(child: Text('left'));
-          },
-        ),
-      ],
-      // child: DropTarget(
-      //   onDragDone: (detail) async {
-      //     log('detail:$detail');
-      //     log('mimeType:${detail.files[0].mimeType}');
-      //    final f = File.fromRawPath(await detail.files[0].readAsBytes()).toString();
-      //    log('f:$f');
-      //   },
-      //   onDragEntered: (_) {
-      //     setState(() {
-      //       dragging = true;
-      //     });
-      //   },
-      //   onDragExited: (_) {
-      //     setState(() {
-      //       dragging = false;
-      //     });
-      //   },
-      //   child: Container(
-      //     decoration: BoxDecoration(
-      //       color: dragging ? Colors.blueAccent : Colors.redAccent,
-      //     ),
-      //   ),
-      // ),
-    );
+    return Scaffold();
   }
 }

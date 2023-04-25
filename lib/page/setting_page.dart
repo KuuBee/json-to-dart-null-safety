@@ -1,27 +1,15 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:macos_ui/macos_ui.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/link.dart';
 
-import '../app_root.dart';
-import '../theme.dart';
-import '../utils/app_platform.dart';
-import '../widget/app_content.dart';
-import '../widget/app_sidebar.dart';
-import '../widget/macos_title_bar.dart';
-import 'json_content_page.dart';
-
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class SettingPage extends StatefulWidget {
+  const SettingPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<SettingPage> createState() => _SettingPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _SettingPageState extends State<SettingPage> {
   int currentIndex = 0;
   List<Tab> tabs = [];
 
@@ -32,7 +20,10 @@ class _HomePageState extends State<HomePage> {
       text: Text('Document $index'),
       semanticLabel: 'Document #$index',
       icon: const FlutterLogo(),
-      body: const JsonContentPage(),
+      body: Container(
+        color:
+            Colors.accentColors[Random().nextInt(Colors.accentColors.length)],
+      ),
       onClosed: () {
         setState(() {
           tabs.remove(tab);

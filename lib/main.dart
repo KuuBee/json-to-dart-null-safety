@@ -10,6 +10,16 @@ import 'package:window_manager/window_manager.dart';
 
 import 'app_root.dart';
 
+/// Checks if the current environment is a desktop environment.
+bool get isDesktop {
+  if (kIsWeb) return false;
+  return [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ].contains(defaultTargetPlatform);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await appInit();
