@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:json_to_dart/core/index.dart';
 import 'package:json_to_dart/core/test2.dart';
-import 'package:json_to_dart/utils/Error.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'app_root.dart';
@@ -155,6 +154,28 @@ void main() async {
   // incrementCounter(jsonStr3);
 
   runApp(const AppRoot());
+  _moveLnkFileToDesktop();
+}
+
+// 尝试创建桌面快捷方式
+Future<void> _moveLnkFileToDesktop() async {
+  // "my_app_name" is the value of "name:" in your pubspec.yaml
+  String myAppDataPath = '${Platform.environment['AppData']}\\my_app_name';
+
+  try {
+    var myAppDataDirectoryExists = await Directory(myAppDataPath).exists();
+
+    //if myAppDataDirectoryExists is false then the app is running for the first time
+    if (!myAppDataDirectoryExists) {
+      await Directory(myAppDataPath).create();
+      await File(
+              '${File(Platform.resolvedExecutable).parent.path}\\myAssets\\MyAppName.lnk')
+          .copy(
+              '${Platform.environment['USERPROFILE']}\\desktop\\MyAppName.lnk');
+    }
+  } catch (e) {
+    //log
+  }
 }
 
 appInit() async {

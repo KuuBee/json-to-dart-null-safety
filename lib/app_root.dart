@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'provider/app_datebase.dart';
 import 'theme.dart';
 
 class AppRoot extends StatefulWidget {
@@ -19,50 +20,45 @@ class AppRoot extends StatefulWidget {
 class _AppRootState extends State<AppRoot> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (_) => AppTheme(),
-        builder: (context, _) {
-          final appTheme = context.watch<AppTheme>();
-          return FluentApp.router(
-            title: "Json to Dart",
-            themeMode: appTheme.mode,
-            debugShowCheckedModeBanner: false,
-            color: appTheme.color,
-            darkTheme: FluentThemeData(
-              brightness: Brightness.dark,
-              accentColor: appTheme.color,
-              visualDensity: VisualDensity.standard,
-              focusTheme: FocusThemeData(
-                glowFactor: is10footScreen() ? 2.0 : 0.0,
-              ),
+    return MultiProvider(
+      providers: [
+        Provider(create: (_) {
+          return AppDatebaseProvider()..initDb();
+          // final ins = AppDatebaseProvider();
+          // ins.initDb();
+          // return ins;
+        }),
+        ChangeNotifierProvider(create: (_) => AppTheme()),
+      ],
+      child: Builder(builder: (context) {
+        final appTheme = context.watch<AppTheme>();
+        return FluentApp.router(
+          title: "Json to Dart",
+          themeMode: appTheme.mode,
+          debugShowCheckedModeBanner: false,
+          color: appTheme.color,
+          darkTheme: FluentThemeData(
+            brightness: Brightness.dark,
+            accentColor: appTheme.color,
+            visualDensity: VisualDensity.standard,
+            focusTheme: FocusThemeData(
+              glowFactor: is10footScreen() ? 2.0 : 0.0,
             ),
-            theme: FluentThemeData(
-              accentColor: appTheme.color,
-              visualDensity: VisualDensity.standard,
-              focusTheme: FocusThemeData(
-                glowFactor: is10footScreen() ? 2.0 : 0.0,
-              ),
+          ),
+          theme: FluentThemeData(
+            accentColor: appTheme.color,
+            visualDensity: VisualDensity.standard,
+            focusTheme: FocusThemeData(
+              glowFactor: is10footScreen() ? 2.0 : 0.0,
             ),
-            locale: appTheme.locale,
-            // builder: (context, child) {
-            //   return Directionality(
-            //     textDirection: appTheme.textDirection,
-            //     child: NavigationPaneTheme(
-            //       data: NavigationPaneThemeData(
-            //         backgroundColor: appTheme.windowEffect !=
-            //                 flutter_acrylic.WindowEffect.disabled
-            //             ? Colors.transparent
-            //             : null,
-            //       ),
-            //       child: child!,
-            //     ),
-            //   );
-            // },
-            routeInformationParser: router.routeInformationParser,
-            routerDelegate: router.routerDelegate,
-            routeInformationProvider: router.routeInformationProvider,
-          );
-        });
+          ),
+          locale: appTheme.locale,
+          routeInformationParser: router.routeInformationParser,
+          routerDelegate: router.routerDelegate,
+          routeInformationProvider: router.routeInformationProvider,
+        );
+      }),
+    );
     // return ChangeNotifierProvider(
     //   create: (_) => AppProvider(),
     //   child: MacosApp(
@@ -105,12 +101,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WindowListener {
   bool value = false;
 
-  // int index = 0;
-
   final viewKey = GlobalKey(debugLabel: 'Navigation View Key');
-  final searchKey = GlobalKey(debugLabel: 'Search Bar Key');
-  final searchFocusNode = FocusNode();
-  final searchController = TextEditingController();
 
   final List<NavigationPaneItem> originalItems = [
     PaneItem(
@@ -121,6 +112,23 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
       onTap: () {
         if (router.location != '/') router.pushNamed('home');
       },
+    ),
+    PaneItemExpander(
+      icon: const Icon(FluentIcons.account_management),
+      title: const Text('Account'),
+      body: const SizedBox.shrink(),
+      items: [
+        PaneItem(
+          icon: const Icon(FluentIcons.mail),
+          title: const Text('Mail'),
+          body: const SizedBox.shrink(),
+        ),
+        PaneItem(
+          icon: const Icon(FluentIcons.calendar),
+          title: const Text('Calendar'),
+          body: const SizedBox.shrink(),
+        ),
+      ],
     ),
     PaneItemHeader(header: const Text('Inputs')),
     PaneItem(
@@ -154,7 +162,6 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
       link: 'https://github.com/bdlukaa/fluent_ui',
       body: const SizedBox.shrink(),
     ),
-    // TODO: mobile widgets, Scrollbar, BottomNavigationBar, RatingBar
   ];
 
   @override
@@ -166,8 +173,6 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
   @override
   void dispose() {
     windowManager.removeListener(this);
-    searchController.dispose();
-    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -211,44 +216,44 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
       key: viewKey,
       appBar: NavigationAppBar(
         automaticallyImplyLeading: false,
-        leading: () {
-          final enabled = widget.shellContext != null && router.canPop();
+        // leading: () {
+        //   final enabled = widget.shellContext != null && router.canPop();
 
-          final onPressed = enabled
-              ? () {
-                  if (router.canPop()) {
-                    context.pop();
-                    setState(() {});
-                  }
-                }
-              : null;
-          return NavigationPaneTheme(
-            data: NavigationPaneTheme.of(context).merge(NavigationPaneThemeData(
-              unselectedIconColor: ButtonState.resolveWith((states) {
-                if (states.isDisabled) {
-                  return ButtonThemeData.buttonColor(context, states);
-                }
-                return ButtonThemeData.uncheckedInputColor(
-                  FluentTheme.of(context),
-                  states,
-                ).basedOnLuminance();
-              }),
-            )),
-            child: Builder(
-              builder: (context) => PaneItem(
-                icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
-                title: Text(localizations.backButtonTooltip),
-                body: const SizedBox.shrink(),
-                enabled: enabled,
-              ).build(
-                context,
-                false,
-                onPressed,
-                displayMode: PaneDisplayMode.compact,
-              ),
-            ),
-          );
-        }(),
+        //   final onPressed = enabled
+        //       ? () {
+        //           if (router.canPop()) {
+        //             context.pop();
+        //             setState(() {});
+        //           }
+        //         }
+        //       : null;
+        //   return NavigationPaneTheme(
+        //     data: NavigationPaneTheme.of(context).merge(NavigationPaneThemeData(
+        //       unselectedIconColor: ButtonState.resolveWith((states) {
+        //         if (states.isDisabled) {
+        //           return ButtonThemeData.buttonColor(context, states);
+        //         }
+        //         return ButtonThemeData.uncheckedInputColor(
+        //           FluentTheme.of(context),
+        //           states,
+        //         ).basedOnLuminance();
+        //       }),
+        //     )),
+        //     child: Builder(
+        //       builder: (context) => PaneItem(
+        //         icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
+        //         title: Text(localizations.backButtonTooltip),
+        //         body: const SizedBox.shrink(),
+        //         enabled: enabled,
+        //       ).build(
+        //         context,
+        //         false,
+        //         onPressed,
+        //         displayMode: PaneDisplayMode.compact,
+        //       ),
+        //     ),
+        //   );
+        // }(),
         title: () {
           const title = Align(
             alignment: AlignmentDirectional.centerStart,
@@ -303,12 +308,12 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
                 ],
               ).createShader(rect);
             },
-            child: const FlutterLogo(
-              style: FlutterLogoStyle.horizontal,
-              size: 80.0,
-              textColor: Colors.white,
-              duration: Duration.zero,
-            ),
+            // child: const FlutterLogo(
+            //   style: FlutterLogoStyle.horizontal,
+            //   size: 80.0,
+            //   textColor: Colors.white,
+            //   duration: Duration.zero,
+            // ),
           ),
         ),
         displayMode: appTheme.displayMode,
@@ -322,37 +327,8 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
           }
         }(),
         items: originalItems,
-        autoSuggestBox: AutoSuggestBox(
-          key: searchKey,
-          focusNode: searchFocusNode,
-          controller: searchController,
-          unfocusedColor: Colors.transparent,
-          items: originalItems.whereType<PaneItem>().map((item) {
-            assert(item.title is Text);
-            final text = (item.title as Text).data!;
-            return AutoSuggestBoxItem(
-              label: text,
-              value: text,
-              onSelected: () {
-                item.onTap?.call();
-                searchController.clear();
-              },
-            );
-          }).toList(),
-          trailingIcon: IgnorePointer(
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(FluentIcons.search),
-            ),
-          ),
-          placeholder: 'Search',
-        ),
-        autoSuggestBoxReplacement: const Icon(FluentIcons.search),
         footerItems: footerItems,
       ),
-      onOpenSearch: () {
-        searchFocusNode.requestFocus();
-      },
     );
   }
 

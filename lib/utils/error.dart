@@ -9,3 +9,12 @@ class JsonToDartUnsupportedObjectError extends Error {
     return "当前Json不支持转换为Dart $safeString";
   }
 }
+
+class AppDatabaseNotInitError extends Error {
+  AppDatabaseNotInitError();
+
+  @override
+  String toString() {
+    return "数据库未初始化！";
+  }
+}
