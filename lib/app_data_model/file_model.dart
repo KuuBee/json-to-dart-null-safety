@@ -18,7 +18,7 @@ class FileModel {
     required this.jsonSerializationStr,
     required this.name,
   });
-  static initTable(Database db) async {
+  static Future<Database> initTable(Database db) async {
     await db.execute("""
     CREATE TABLE IF NOT EXISTS file (
         id INTEGER PRIMARY KEY,
@@ -27,5 +27,6 @@ class FileModel {
         dart_class_str TEXT 
         json_serialization_str TEXT 
     );""");
+    return db;
   }
 }

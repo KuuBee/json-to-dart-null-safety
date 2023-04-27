@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:json_to_dart/page/home_page.dart';
 import 'package:json_to_dart/page/setting_page.dart';
+import 'package:json_to_dart/provider/app_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
 import 'package:window_manager/window_manager.dart';
@@ -22,13 +25,11 @@ class _AppRootState extends State<AppRoot> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) {
-          return AppDatebaseProvider()..initDb();
-          // final ins = AppDatebaseProvider();
-          // ins.initDb();
-          // return ins;
-        }),
+        ChangeNotifierProvider(create: (_) => AppDatebaseProvider()),
         ChangeNotifierProvider(create: (_) => AppTheme()),
+        ChangeNotifierProvider(
+            create: (context) =>
+                AppProvider(context.read<AppDatebaseProvider>().db)),
       ],
       child: Builder(builder: (context) {
         final appTheme = context.watch<AppTheme>();
