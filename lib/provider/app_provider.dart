@@ -33,14 +33,24 @@ class AppProvider extends ChangeNotifier {
 
   insertProject(ProjectModel project) async {
     try {
-      project.insertProject(db);
+      await project.insert();
     } catch (e) {
       throw DatabaseInsertError('project', project.toMap());
     }
   }
 
-  removeProject(int id) {
-    // TODO 删除项目
-    // TODO 删除项目下的文件
+  removeProject(ProjectModel project) async {
+    try {
+      final fileIdList = project.items;
+      await project.remove();
+      for (var fileModel in fileIdList) {
+        await fileModel.remove();
+      }
+      final index =
+          _projectList.indexWhere((element) => element.id == project.id);
+      _projectList.removeAt(index);
+    } catch (e) {
+      throw DatabaseDeleteError('project', project.toMap());
+    }
   }
 }

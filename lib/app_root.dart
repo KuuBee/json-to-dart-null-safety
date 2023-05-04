@@ -60,26 +60,6 @@ class _AppRootState extends State<AppRoot> {
         );
       }),
     );
-    // return ChangeNotifierProvider(
-    //   create: (_) => AppProvider(),
-    //   child: MacosApp(
-    //     title: 'Json to Dart',
-    //     theme: MacosThemeData.light(),
-    //     darkTheme: MacosThemeData.dark(),
-    //     home: ContextMenuOverlay(
-    //       child: Selector<AppProvider, MouseCursor>(
-    //         selector: (context, provider) => provider.cursor,
-    //         builder: (context, cursor, child) {
-    //           return MouseRegion(
-    //             cursor: cursor,
-    //             child: child,
-    //           );
-    //         },
-    //         child: const HomePage(),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }
 
@@ -104,70 +84,120 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
 
   final viewKey = GlobalKey(debugLabel: 'Navigation View Key');
 
-  final List<NavigationPaneItem> originalItems = [
-    PaneItem(
-      key: const Key('/'),
-      icon: const Icon(FluentIcons.home),
-      title: const Text('Home'),
-      body: const SizedBox.shrink(),
-      onTap: () {
-        if (router.location != '/') router.pushNamed('home');
-      },
-    ),
-    PaneItemExpander(
-      icon: const Icon(FluentIcons.account_management),
-      title: const Text('Account'),
-      body: const SizedBox.shrink(),
-      items: [
-        PaneItem(
-          icon: const Icon(FluentIcons.mail),
-          title: const Text('Mail'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          icon: const Icon(FluentIcons.calendar),
-          title: const Text('Calendar'),
-          body: const SizedBox.shrink(),
-        ),
-      ],
-    ),
-    PaneItemHeader(header: const Text('Inputs')),
-    PaneItem(
-      key: const Key('/settings'),
-      icon: const Icon(FluentIcons.settings),
-      title: const Text('Settings'),
-      body: const SizedBox.shrink(),
-      onTap: () {
-        if (router.location != '/settings') {
-          router.pushNamed('settings');
-        }
-      },
-    ),
-  ];
+  List<NavigationPaneItem> get originalItems {
+    final projectList = context.read<AppProvider>().projectList;
+    // return [
+    //   PaneItem(
+    //     key: const Key('/'),
+    //     icon: const Icon(FluentIcons.home),
+    //     title: const Text('Home'),
+    //     body: const SizedBox.shrink(),
+    //     onTap: () {
+    //       if (router.location != '/') router.pushNamed('home');
+    //     },
+    //   )
+    // ];
+    final List<NavigationPaneItem> res = projectList
+        .map((item) => PaneItem(
+              key: Key("/"),
+              icon: const Icon(FluentIcons.home),
+              title: Text(item.name),
+              body: const SizedBox.shrink(),
+              onTap: () {
+                if (router.location != '/') router.pushNamed('home');
+              },
+            ))
+        .toList();
+    final List<NavigationPaneItem> res2 = [1, 2, 3]
+        .map((item) => PaneItem(
+              key: Key("/"),
+              icon: const Icon(FluentIcons.home),
+              title: Text('321312'),
+              body: const SizedBox.shrink(),
+              onTap: () {
+                if (router.location != '/') router.pushNamed('home');
+              },
+            ))
+        .toList();
+    print(res2);
+    return [
+      PaneItem(
+        key: Key("/"),
+        icon: const Icon(FluentIcons.home),
+        title: Text('321312'),
+        body: const SizedBox.shrink(),
+        onTap: () {
+          if (router.location != '/') router.pushNamed('home');
+        },
+      )
+    ];
+  }
+
+  //  [
+  // PaneItem(
+  //   key: const Key('/'),
+  //   icon: const Icon(FluentIcons.home),
+  //   title: const Text('Home'),
+  //   body: const SizedBox.shrink(),
+  //   onTap: () {
+  //     if (router.location != '/') router.pushNamed('home');
+  //   },
+  // ),
+  // PaneItemExpander(
+  //   icon: const Icon(FluentIcons.account_management),
+  //   title: const Text('Account'),
+  //   body: const SizedBox.shrink(),
+  //   items: [
+  //     PaneItem(
+  //       icon: const Icon(FluentIcons.mail),
+  //       title: const Text('Mail'),
+  //       body: const SizedBox.shrink(),
+  //     ),
+  //     PaneItem(
+  //       icon: const Icon(FluentIcons.calendar),
+  //       title: const Text('Calendar'),
+  //       body: const SizedBox.shrink(),
+  //     ),
+  //   ],
+  // ),
+  // PaneItemHeader(header: const Text('Inputs')),
+  // PaneItem(
+  //   key: const Key('/settings'),
+  //   icon: const Icon(FluentIcons.settings),
+  //   title: const Text('Settings'),
+  //   body: const SizedBox.shrink(),
+  //   onTap: () {
+  //     if (router.location != '/settings') {
+  //       router.pushNamed('settings');
+  //     }
+  //   },
+  // ),
+  // ];
   final List<NavigationPaneItem> footerItems = [
-    PaneItemSeparator(),
-    PaneItem(
-      key: const Key('/settings'),
-      icon: const Icon(FluentIcons.settings),
-      title: const Text('Settings'),
-      body: const SizedBox.shrink(),
-      onTap: () {
-        if (router.location != '/settings') {
-          router.pushNamed('settings');
-        }
-      },
-    ),
-    _LinkPaneItemAction(
-      icon: const Icon(FluentIcons.open_source),
-      title: const Text('Source code'),
-      link: 'https://github.com/bdlukaa/fluent_ui',
-      body: const SizedBox.shrink(),
-    ),
+    // PaneItemSeparator(),
+    // PaneItem(
+    //   key: const Key('/settings'),
+    //   icon: const Icon(FluentIcons.settings),
+    //   title: const Text('Settings'),
+    //   body: const SizedBox.shrink(),
+    //   onTap: () {
+    //     if (router.location != '/settings') {
+    //       router.pushNamed('settings');
+    //     }
+    //   },
+    // ),
+    // _LinkPaneItemAction(
+    //   icon: const Icon(FluentIcons.open_source),
+    //   title: const Text('Source code'),
+    //   link: 'https://github.com/bdlukaa/fluent_ui',
+    //   body: const SizedBox.shrink(),
+    // ),
   ];
 
   @override
   void initState() {
     windowManager.addListener(this);
+    context.read<AppProvider>().initProject();
     super.initState();
   }
 
@@ -217,44 +247,6 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
       key: viewKey,
       appBar: NavigationAppBar(
         automaticallyImplyLeading: false,
-        // leading: () {
-        //   final enabled = widget.shellContext != null && router.canPop();
-
-        //   final onPressed = enabled
-        //       ? () {
-        //           if (router.canPop()) {
-        //             context.pop();
-        //             setState(() {});
-        //           }
-        //         }
-        //       : null;
-        //   return NavigationPaneTheme(
-        //     data: NavigationPaneTheme.of(context).merge(NavigationPaneThemeData(
-        //       unselectedIconColor: ButtonState.resolveWith((states) {
-        //         if (states.isDisabled) {
-        //           return ButtonThemeData.buttonColor(context, states);
-        //         }
-        //         return ButtonThemeData.uncheckedInputColor(
-        //           FluentTheme.of(context),
-        //           states,
-        //         ).basedOnLuminance();
-        //       }),
-        //     )),
-        //     child: Builder(
-        //       builder: (context) => PaneItem(
-        //         icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
-        //         title: Text(localizations.backButtonTooltip),
-        //         body: const SizedBox.shrink(),
-        //         enabled: enabled,
-        //       ).build(
-        //         context,
-        //         false,
-        //         onPressed,
-        //         displayMode: PaneDisplayMode.compact,
-        //       ),
-        //     ),
-        //   );
-        // }(),
         title: () {
           const title = Align(
             alignment: AlignmentDirectional.centerStart,
@@ -294,7 +286,7 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
         );
       },
       pane: NavigationPane(
-        selected: _calculateSelectedIndex(context),
+        // selected: _calculateSelectedIndex(context),
         header: SizedBox(
           height: kOneLineTileHeight,
           child: ShaderMask(
@@ -309,12 +301,6 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
                 ],
               ).createShader(rect);
             },
-            // child: const FlutterLogo(
-            //   style: FlutterLogoStyle.horizontal,
-            //   size: 80.0,
-            //   textColor: Colors.white,
-            //   duration: Duration.zero,
-            // ),
           ),
         ),
         displayMode: appTheme.displayMode,
@@ -427,9 +413,9 @@ final router = GoRouter(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
         return MyHomePage(
-          child: child,
           shellContext: _shellNavigatorKey.currentContext,
           state: state,
+          child: child,
         );
       },
       routes: [
@@ -446,17 +432,6 @@ final router = GoRouter(
           name: 'settings',
           builder: (context, state) => SettingPage(),
         ),
-
-        /// /// Input
-        /// Buttons
-        // GoRoute(
-        //   path: '/inputs/buttons',
-        //   name: 'inputs_buttons',
-        //   builder: (context, state) => DeferredWidget(
-        //     inputs.loadLibrary,
-        //     () => inputs.ButtonPage(),
-        //   ),
-        // ),
       ],
     ),
   ],

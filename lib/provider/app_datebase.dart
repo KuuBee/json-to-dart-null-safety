@@ -50,8 +50,10 @@ class AppDatebaseProvider extends ChangeNotifier {
       database = await openDatabase(path);
     }
     _database = database;
-    await ProjectModel.initTable(database);
-    await FileModel.initTable(database);
+    ProjectModel.initDb(database);
+    FileModel.initDb(database);
+    await ProjectModel.initTable();
+    await FileModel.initTable();
     return database;
   }
 }

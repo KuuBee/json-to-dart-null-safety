@@ -1,11 +1,11 @@
-import 'dart:io';
-
 import 'package:sqflite/sqflite.dart';
+
+import 'file_model.dart';
 
 class ProjectModel {
   final int id;
   final String name;
-  final List<FileMode> items;
+  final List<FileModel> items;
 
   ProjectModel({required this.id, required this.name, required this.items});
 
@@ -23,18 +23,25 @@ class ProjectModel {
         "items": items,
       };
 
-  static Future<Database> initTable(Database db) async {
-    await db.execute("""
+  static late Database _db;
+  static initDb(Database db) {
+    _db = db;
+  }
+
+  static initTable() async {
+    await _db.execute("""
     CREATE TABLE IF NOT EXISTS project (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
         items TEXT 
     );""");
-    return db;
   }
 
-  Future<Database> insertProject(Database db) async {
-    await db.rawInsert('INSERT INTO project(name, items) VALUES($name, ?)');
-    return db;
+  insert() async {
+    await _db.rawInsert('INSERT INTO project(name, items) VALUES($name, ?)');
+  }
+
+  remove() async {
+    await _db.rawInsert('DELETE FROM project WHERE ID = $id');
   }
 }

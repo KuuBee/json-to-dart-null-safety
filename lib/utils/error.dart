@@ -11,6 +11,16 @@ class JsonToDartUnsupportedObjectError extends Error {
   }
 }
 
+/// 通用错误，只报出一个自定义msg和堆栈
+class GenericError extends Error {
+  GenericError(this.msg);
+  final String msg;
+  @override
+  String toString() {
+    return "msg:$msg \nstackTrace:$stackTrace";
+  }
+}
+
 // 数据库初始化失败
 class DatabaseNotInitError extends Error {
   DatabaseNotInitError();
@@ -30,5 +40,17 @@ class DatabaseInsertError extends Error {
   @override
   String toString() {
     return "数据库插入数据失败！表：$table\ndata:$data\nstackTrace:$stackTrace";
+  }
+}
+
+// 数据库删除数据失败
+class DatabaseDeleteError extends Error {
+  DatabaseDeleteError(this.table, this.data);
+  final String table;
+  final Map<String, Object> data;
+
+  @override
+  String toString() {
+    return "数据库删除数据失败！表：$table\ndata:$data\nstackTrace:$stackTrace";
   }
 }
